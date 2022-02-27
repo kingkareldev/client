@@ -1,0 +1,16 @@
+import 'package:business_contract/business_contract.dart';
+import 'package:test/test.dart';
+
+void main() {
+  group('A group of tests', () {
+    final awesome = Awesome();
+
+    setUp(() {
+      // Additional setup goes here.
+    });
+
+    test('First Test', () {
+      expect(awesome.isAwesome, isTrue);
+    });
+  });
+}
