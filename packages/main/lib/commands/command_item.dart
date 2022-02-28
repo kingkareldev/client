@@ -46,6 +46,10 @@ class _CommandItemState extends State<CommandItem> {
     );
   }
 
+  static _CommandItemState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_CommandItemState>();
+  }
+
   @override
   Widget build(BuildContext context) {
     _commandsState = _CommandsViewState.of(context);
@@ -66,9 +70,9 @@ class _CommandItemState extends State<CommandItem> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Opacity(
-        opacity: key == _commandsState?._dragging ? 0.3 : 1,
+        opacity: key == _commandsState?.dragging ? (_commandsState?.willRemove ?? false ? 0.1 : 0.4) : 1,
         child: _buildContent(),
       ),
     );
@@ -76,15 +80,20 @@ class _CommandItemState extends State<CommandItem> {
 
   Widget _buildContent() {
     if (widget.command is GroupCommand) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCodeBlock("Group ${(widget.command as GroupCommand).name}"),
-          CommandContainer(
-            command: widget.command as GroupCommand,
-            index: index,
-          ),
-        ],
+      return IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              alignment: Alignment.centerLeft,
+              child: _buildCodeBlock("Group ${(widget.command as GroupCommand).name}"),
+            ),
+            CommandContainer(
+              command: widget.command as GroupCommand,
+              index: index,
+            ),
+          ],
+        ),
       );
     } else if (widget.command is SingleCommand) {
       return _buildCodeBlock("Item ${(widget.command as SingleCommand).name}");
@@ -104,7 +113,8 @@ class _CommandItemState extends State<CommandItem> {
             color: Colors.blue, // TODO: use color from Command
           ),
           child: Text(
-            "$index $name state:${key}, widget:${widget.key}, command:${widget.command.hashCode}",
+            "$index $name",
+            // "$index $name state:${key}, widget:${widget.key}, command:${widget.command.hashCode}",
             style: const TextStyle(color: Colors.white),
           ),
         ),

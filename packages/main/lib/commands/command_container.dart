@@ -28,7 +28,6 @@ class _CommandContainerState extends State<CommandContainer> {
 
   @override
   void activate() {
-
     super.activate();
   }
 
@@ -61,12 +60,13 @@ class _CommandContainerState extends State<CommandContainer> {
 
     final boxDecoration = BoxDecoration(
       border: Border(
-        left: BorderSide(width: widget.root ? 0 : 6, color: Colors.blue),
+        left: BorderSide(width: widget.root ? 0 : 10, color: Colors.blue),
       ),
     );
 
     return Container(
       decoration: widget.root ? null : boxDecoration,
+      constraints: const BoxConstraints(minHeight: 50),
       child: _buildContainer(),
     );
   }
@@ -75,8 +75,7 @@ class _CommandContainerState extends State<CommandContainer> {
     final items = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (int i = 0; i < command.commands.length; i++)
-          _buildCommandItem(index, i),
+        for (int i = 0; i < command.commands.length; i++) _buildCommandItem(index, i),
       ],
     );
 
@@ -85,7 +84,7 @@ class _CommandContainerState extends State<CommandContainer> {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(left: 8, top: 8, right: 20, bottom: 8),
+      padding: const EdgeInsets.only(left: 12, top: 12, right: 24, bottom: 12),
       child: items,
     );
   }
@@ -102,5 +101,16 @@ class _CommandContainerState extends State<CommandContainer> {
 
   static _CommandContainerState? of(BuildContext context) {
     return context.findAncestorStateOfType<_CommandContainerState>();
+  }
+
+  bool _isChildOfItem(Key itemKey) {
+    if (command is RootCommand) {
+      print("root");
+      return false;
+    }
+
+    print("container $itemKey vs ");
+    return _CommandItemState.of(context)?.key == itemKey ||
+        (_CommandContainerState.of(context)?._isChildOfItem(itemKey) ?? false);
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -19,13 +20,16 @@ class CommandsView extends StatefulWidget {
 }
 
 class _CommandsViewState extends State<CommandsView> {
-  Key? get dragging => _dragging;
   Key? _dragging;
+
+  Key? get dragging => _dragging;
   Key? _draggingWidgetKey;
 
-  Key? _willDrag;
-
   bool _canUpdate = true;
+
+  bool _willRemove = false;
+
+  bool get willRemove => _willRemove;
 
   _DragProxyState? _dragProxy;
 
@@ -72,48 +76,63 @@ class _CommandsViewState extends State<CommandsView> {
     return context.findAncestorStateOfType<_CommandsViewState>();
   }
 
-  GroupCommand rootCommand = RootCommand([
-    SingleCommand('a'),
-    SingleCommand('b'),
-    SingleCommand('c'),
-    SingleCommand('d'),
-    SingleCommand('e'),
-  ]);
-
   // GroupCommand rootCommand = RootCommand([
   //   SingleCommand('a'),
-  //   GroupCommand('1', [
-  //     SingleCommand('2'),
-  //     SingleCommand('3'),
-  //     SingleCommand('4'),
-  //   ]),
   //   SingleCommand('b'),
-  //   GroupCommand('c', [
-  //     SingleCommand('d'),
-  //     SingleCommand('e'),
-  //     GroupCommand('f', [
-  //       SingleCommand('g'),
-  //       SingleCommand('h'),
-  //       GroupCommand('i', [
-  //         SingleCommand('j1'),
-  //         SingleCommand('j2'),
-  //         SingleCommand('j3'),
-  //       ]),
-  //     ]),
-  //     SingleCommand('k'),
-  //   ]),
-  //   SingleCommand('l'),
-  //   SingleCommand('m'),
+  //   SingleCommand('c'),
+  //   SingleCommand('d'),
+  //   SingleCommand('e'),
+  //   GroupCommand('lol', []),
+  //   GroupCommand('lol2', []),
+  //   GroupCommand('lol3', []),
   // ]);
 
+  GroupCommand rootCommand = RootCommand([
+    SingleCommand('a'),
+    GroupCommand('1', [
+      SingleCommand('2'),
+      SingleCommand('3'),
+      SingleCommand('4'),
+    ]),
+    SingleCommand('b'),
+    GroupCommand('c', [
+      SingleCommand('d'),
+      SingleCommand('e'),
+      GroupCommand('f', [
+        SingleCommand('g'),
+        SingleCommand('h'),
+        GroupCommand('i', [
+          SingleCommand('j1'),
+          SingleCommand('j2'),
+          SingleCommand('j3'),
+        ]),
+      ]),
+      SingleCommand('k'),
+    ]),
+    SingleCommand('l'),
+    SingleCommand('m'),
+  ]);
+
   void _appendItem(List<int> itemIndex, List<int> containerIndex) {
-    print("append item $itemIndex to container $containerIndex");
     if (itemIndex.isEmpty) {
       return;
     }
+    // print("append item $itemIndex to container $containerIndex");
+
+    if (itemIndex.length == containerIndex.length) {
+      bool isTheSame = true;
+      for (int i = 0; i < itemIndex.length; i++) {
+        if (itemIndex[i] != containerIndex[i]) {
+          isTheSame = false;
+          break;
+        }
+      }
+      if (isTheSame) {
+        return;
+      }
+    }
 
     final Command? item = rootCommand.removeAt(itemIndex);
-    print("item $item");
     if (item == null) {
       return;
     }
@@ -127,34 +146,25 @@ class _CommandsViewState extends State<CommandsView> {
     }
 
     final Command? container = rootCommand.commandAt(containerIndex);
-    print("container $container");
     if (container is GroupCommand) {
       final int length = container.commands.length;
       List<int> newIndex = List<int>.from(containerIndex)..add(length);
 
-      setState(() {
-        print("yooo append item $itemIndex to container $containerIndex");
-        rootCommand.insertAt(newIndex, item);
-      });
-    } else {
-      print("container is ${container.runtimeType}");
+      // print("yooo append item $itemIndex to container $containerIndex");
+      rootCommand.insertAt(newIndex, item);
     }
   }
 
   void _removeItem(List<int> itemIndex) {
-    print("remove item $itemIndex");
     if (itemIndex.isEmpty) return;
+    //print("remove item $itemIndex");
 
-    setState(() {
-      final Command? item = rootCommand.removeAt(itemIndex);
-      print("item $item");
-    });
+    rootCommand.removeAt(itemIndex);
   }
 
   void _insertItemBefore(List<int> itemIndex, List<int> afterItemIndex) {
     if (itemIndex.isEmpty || afterItemIndex.isEmpty) return;
 
-    print("a ${itemIndex.length} = ${afterItemIndex.length}");
     if (itemIndex.length == afterItemIndex.length) {
       bool isTheSame = true;
       for (int i = 0; i < itemIndex.length; i++) {
@@ -168,42 +178,41 @@ class _CommandsViewState extends State<CommandsView> {
           break;
         }
       }
-      print("b $isTheSame");
       if (isTheSame) {
         return;
       }
     }
 
-    setState(() {
-      final item = rootCommand.removeAt(itemIndex);
-      if (item != null) {
-        // If the current item was before the place we want to insert,
-        // update the place so it's -1 from it previous position,
-        // because we removed the element before.
-        if (afterItemIndex.length >= itemIndex.length &&
-            itemIndex[itemIndex.length - 1] < afterItemIndex[itemIndex.length - 1]) {
-          afterItemIndex[itemIndex.length - 1]--;
-        }
-        rootCommand.insertAt(afterItemIndex, item);
-      } else {
-        print("item was null");
+    // print("insert x $itemIndex before $afterItemIndex");
+
+    final item = rootCommand.removeAt(itemIndex);
+    if (item != null) {
+      // If the current item was before the place we want to insert,
+      // update the place so it's -1 from it previous position,
+      // because we removed the element before.
+      if (afterItemIndex.length >= itemIndex.length &&
+          itemIndex[itemIndex.length - 1] < afterItemIndex[itemIndex.length - 1]) {
+        afterItemIndex[itemIndex.length - 1]--;
       }
-    });
+      rootCommand.insertAt(afterItemIndex, item);
+    }
   }
 
   void _freeUpdate() {
     print("free start");
     SchedulerBinding.instance!.addPostFrameCallback((Duration timeStamp) {
+      print("free scheduler");
       setState(() {
         _canUpdate = true;
         print("free done");
       });
     });
-    if (_items.containsKey(_dragging)) {
-      setState(() {
+    setState(() {
+      print("free setstate");
+      if (_items.containsKey(_dragging)) {
         _items[_dragging]!.update();
-      });
-    }
+      }
+    });
   }
 
   @override
@@ -222,30 +231,15 @@ class _CommandsViewState extends State<CommandsView> {
         ListView(
           shrinkWrap: true,
           children: [
-            // Container(
-            //   color: Colors.redAccent,
-            //   child: Text("aaa"),
-            // )
-            ElevatedButton(
-              onPressed: () {
-                _appendItem([0], [1]);
-              },
-              child: const Text("press me"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _removeItem([2]);
-              },
-              child: const Text("remove"),
-            ),
             Align(
               alignment: Alignment.topLeft,
               child: CommandItem(command: rootCommand),
             ),
             Text("$rootCommand"),
-            Text("${_draggingWidgetKey}"),
-            Text("${_items.containsKey(_dragging) ? _items[_dragging]!.index : null}"),
-            Text("${_canUpdate}"),
+            // Text("${_draggingWidgetKey}"),
+            // Text("${_items.containsKey(_dragging) ? _items[_dragging]!.index : null}"),
+            // Text("${_canUpdate}"),
+            // Text("$_containers"),
           ],
         ),
         const DragProxy(),
@@ -297,117 +291,119 @@ class _CommandsViewState extends State<CommandsView> {
   }
 
   void _updateDragging(DragUpdateDetails event) {
+    print(event);
     _dragProxy?.updateOffset(event.delta);
 
     if (!_canUpdate) {
       return;
     }
     _canUpdate = false;
-    print("LOCK 1 $_dragging");
-    print("THIS ${event.delta}, ${event.localPosition}, ${event.globalPosition}");
 
     if (_dragging == null) {
       _freeUpdate();
       return;
     }
 
-    print("yoo UPDATE $event ${_items[_dragging]!.index}");
-
-    final Offset position = event.globalPosition;
-    _CommandContainerState? closestContainer = _findClosestContainer(position: position);
-
-    if (closestContainer == null) {
-      print("the drag is out, will be removed");
+    if (!_items.containsKey(_dragging)) {
       _freeUpdate();
       return;
     }
 
-    /// FIND CLOSEST ITEM (REPLACE INDEX) INSIDE THAT CONTAINER
-    print("closest container = ${closestContainer.index}");
+    // print("yoo UPDATE $event ${_items[_dragging]!.index}");
 
-    // print("--> position ${position}");
+    final Offset position = event.globalPosition;
+    _CommandContainerState? closestContainer = _findClosestContainer(position: position);
+    // print("closest container of ${_items[_dragging]!.index} is ${closestContainer?.index}");
+
+    if (closestContainer == null) {
+      // print("the drag is out, will be removed");
+      _willRemove = true;
+      _freeUpdate();
+      return;
+    }
+    _willRemove = false;
+
+    /// FIND CLOSEST ITEM (REPLACE INDEX) INSIDE THAT CONTAINER
+
     final render = _items[_dragging]!.context.findRenderObject() as RenderBox;
     _CommandItemState? afterItemDrag;
     double smallestOffset = double.negativeInfinity;
     closestContainer.items.forEach((itemKey, _CommandItemState item) {
       final itemRender = item.context.findRenderObject() as RenderBox;
-      // TODO maybe use keys? -- not sure if they will change on changed position
-      if (_dragging == itemKey) {
-        print("this one ${item.index}");
-      }
 
       // Except the current item.
       if (!render.size.contains(itemRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero))) {
         double offsetToItem = position.dy - itemRender.localToGlobal(Offset.zero).dy - itemRender.size.height / 2;
+
         if (offsetToItem < 0 && offsetToItem > smallestOffset) {
           smallestOffset = offsetToItem;
           afterItemDrag = item;
         }
-      } else {
-        print("yes this one");
       }
     });
 
     if (afterItemDrag == null) {
-      print("append to container");
+      //print("append ${_items[_dragging]!.index} to container ${closestContainer.index}");
       _appendItem(_items[_dragging]!.index, closestContainer.index);
     } else {
-      print("insert ${_items[_dragging]!.index} before ${afterItemDrag!.index}");
+      //print("insert ${_items[_dragging]!.index} before ${afterItemDrag!.index}");
       _insertItemBefore(_items[_dragging]!.index, afterItemDrag!.index);
     }
 
-    _items[dragging]?.update();
+    _items[_dragging]?.update();
 
     _freeUpdate();
   }
 
   void _endDragging([DragEndDetails? event]) {
-    while (_canUpdate == false) {
-    }
+    while (_canUpdate == false) {}
     _canUpdate = false;
-    print("yoo END $event");
-    // TODO: for the 1st element ([0]) it says on update 'insert [0] before [1]', but for this drag offset it cannot find a closest container.
-    _CommandContainerState? closestContainer = _findClosestContainer(position: _dragProxy!._offset);
-    print(_dragProxy!._offset);
-    print("closes end container: ${closestContainer?.index}");
 
     _dragProxy?.hide();
     _draggingWidgetKey = null;
 
     if (_dragging != null) {
-      if (closestContainer == null) {
-        _removeItem(_items[_dragging]!.index);
+      final current = _items[_dragging];
+      current?.update();
+
+      if (_willRemove) {
+        _willRemove = false;
+        _removeItem(current!.index);
       }
 
-      final current = _items[_dragging];
       _dragging = null;
-      current?.update();
     }
 
     _freeUpdate();
   }
 
   _CommandContainerState? _findClosestContainer({required Offset position}) {
-    print("== from ${_items[_dragging]!.index}");
+    // print("== from ${_items[_dragging]!.index}");
     final render = _items[_dragging]!.context.findRenderObject() as RenderBox;
-    print("ltg ${render.localToGlobal(Offset.zero)}, pos $position");
+
     int maxIndexes = -1;
     _CommandContainerState? closestContainer;
     _CommandsViewState.of(_items[_dragging]!.context)!.containers.forEach(
       (containerKey, _CommandContainerState container) {
         final containerRender = container.context.findRenderObject() as RenderBox;
-        print("AA");
+
         // The drag position is inside target area.
         // if (container.key == _CommandContainerState.of(_items[_dragging]!.context)!.key) {
-        if (containerRender.size.contains(position - containerRender.localToGlobal(Offset.zero))) {
+        if (containerRender.size.contains(position - containerRender.localToGlobal(Offset.zero) + Offset(2, 2))) {
+          // print("container: ${containerRender.localToGlobal(Offset.zero)} vs self: ${render.localToGlobal(Offset.zero)} == ${containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero)} ... ${render.size}");
           // print("x 2 --- ${render.localToGlobal(Offset.zero)} ... ${containerRender.localToGlobal(Offset.zero)}");
+          // print(
+          //     "keys self: ${_items[_dragging]!.key} or $_dragging, container item state: ${_CommandItemState.of(container.context)?.key}");
+          // print("yoo is self recursive? ${container._isChildOfItem(_dragging!)}");
+
+          // print(
+          //     "__!!__ ${!render.size.contains(containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero) + Offset(2, 2)) == !container._isChildOfItem(_dragging!)}");
+
           // But it is not subtree of original item.
-          print("A");
-          if (!render.size.contains(
-              containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero) - Offset(2, 2))) {
-            print("B");
-            // print("x 3");
-            // print("... ${containerRender.localToGlobal(Offset.zero)}");
+          if (!container._isChildOfItem(_dragging!)) {
+            // if (!render.size.contains(
+            //    containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero) - Offset(2, 2))) {
+
             // Find closest one.
             if (container.index.length > maxIndexes) {
               maxIndexes = container.index.length;
