@@ -105,7 +105,6 @@ class _CommandContainerState extends State<CommandContainer> {
 
   bool _isChildOfItem(Key itemKey) {
     if (command is RootCommand) {
-      print("root");
       return false;
     }
 

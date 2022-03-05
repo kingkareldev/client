@@ -1,10 +1,9 @@
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:main/commands/model/command.dart';
+import 'package:main/screens/play/commands/model/command.dart';
 
 part 'command_container.dart';
 
@@ -207,12 +206,13 @@ class _CommandsViewState extends State<CommandsView> {
         print("free done");
       });
     });
-    setState(() {
-      print("free setstate");
-      if (_items.containsKey(_dragging)) {
-        _items[_dragging]!.update();
-      }
-    });
+    // setState(() {
+    //   // _canUpdate = true;
+    //   print("free setstate");
+    //   if (_items.containsKey(_dragging)) {
+    //     _items[_dragging]!.update();
+    //   }
+    // });
   }
 
   @override

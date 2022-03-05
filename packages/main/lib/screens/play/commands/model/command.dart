@@ -23,6 +23,11 @@ class GroupCommand extends Command {
   }
 
   void insertAt(List<int> index, Command command) {
+    if (index.isEmpty) {
+      print("!! !! IT WAS EMPTY");
+      return;
+    }
+
     if (index.length == 1) {
       commands.insert(index.first, command);
       return;
