@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:main/screens/sign/signin.dart';
-import 'package:main/screens/sign/signup.dart';
+import 'package:main/screens/sign/signin_screen.dart';
+import 'package:main/screens/sign/signup_screen.dart';
 
 import '../router/no_animation_transition_delegate.dart';
 import '../router/router_bloc.dart';

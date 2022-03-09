@@ -89,7 +89,7 @@ class _StoryScreenState extends State<StoryScreen> {
           )
         else
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30),
+            padding: const EdgeInsets.symmetric(vertical: 100),
             child: Align(
               alignment: Alignment.center,
               child: Column(

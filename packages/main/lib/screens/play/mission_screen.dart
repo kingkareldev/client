@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:main/extensions/iterable.dart';
-import 'package:main/screens/play/missions/game.dart';
-import 'package:main/screens/play/missions/story.dart';
+import 'package:main/screens/play/missions/game_screen.dart';
+import 'package:main/screens/play/missions/story_screen.dart';
 
 import '../../model/mission.dart';
 import '../../model/story.dart';
-import 'missions/learning.dart';
+import 'missions/learning_screen.dart';
 
 class MissionScreen extends StatefulWidget {
   final String storyId;
@@ -23,7 +23,7 @@ class _MissionScreenState extends State<MissionScreen> {
 
   @override
   void initState() {
-    // TODO
+    // TODO probably only pass the IDs
     story = storiesDataTmp.firstWhereOrNull((element) => element.id == widget.storyId);
     mission = story?.missions.firstWhereOrNull((element) => element.id == widget.missionId);
     super.initState();
@@ -32,15 +32,15 @@ class _MissionScreenState extends State<MissionScreen> {
   @override
   Widget build(BuildContext context) {
     if (mission is GameMission) {
-      return GameView(story: story!, mission: mission as GameMission);
+      return GameScreen(story: story!, mission: mission as GameMission);
     }
 
     if (mission is LearningMission) {
-      return LearningView(story: story!, mission: mission as LearningMission);
+      return LearningScreen(story: story!, mission: mission as LearningMission);
     }
 
     if (mission is StoryMission) {
-      return StoryView(story: story!, mission: mission as StoryMission);
+      return StoryScreen(story: story!, mission: mission as StoryMission);
     }
 
     return Container(

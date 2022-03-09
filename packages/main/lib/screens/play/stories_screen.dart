@@ -23,7 +23,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
     return DefaultScreenContainer(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 30),
+          padding: const EdgeInsets.symmetric(vertical: 100),
           child: Align(
             alignment: Alignment.center,
             child: Column(

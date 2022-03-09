@@ -7,11 +7,11 @@ import '../../../model/mission.dart';
 import '../../../model/story.dart';
 import '../../../router/router_bloc.dart';
 
-class LearningView extends StatelessWidget {
+class LearningScreen extends StatelessWidget {
   final LearningMission mission;
   final Story story;
 
-  const LearningView({required this.story, required this.mission, Key? key}) : super(key: key);
+  const LearningScreen({required this.story, required this.mission, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class LearningView extends StatelessWidget {
     return DefaultScreenContainer(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 80, bottom: 50),
+          padding: const EdgeInsets.symmetric(vertical: 100),
           child: Column(
             children: [
               Text(

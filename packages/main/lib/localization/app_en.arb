@@ -74,6 +74,11 @@
     "description": "The button for dialog back to the story button."
   },
 
+  "paletteTitle": "palette",
+  "@paletteTitle": {
+    "description": "The title of the palette section of the mission's tree view."
+  },
+
   "statsTitle": "stats",
   "@statsTitle": {
     "description": "The title of the stats screen."

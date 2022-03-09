@@ -6,14 +6,14 @@ import 'package:main/router/route_config.dart';
 import 'package:main/router/router_bloc.dart';
 import 'package:main/window/app_window.dart';
 
-import '../screens/about.dart';
-import '../screens/home.dart';
-import '../screens/play.dart';
-import '../screens/profile.dart';
-import '../screens/settings.dart';
-import '../screens/sign.dart';
-import '../screens/stats.dart';
-import '../screens/unknown.dart';
+import '../screens/about_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/play_screen.dart';
+import '../screens/profile_screen.dart';
+import '../screens/settings_screen.dart';
+import '../screens/sign_screen.dart';
+import '../screens/stats_screen.dart';
+import '../screens/unknown_screen.dart';
 import 'no_animation_transition_delegate.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();

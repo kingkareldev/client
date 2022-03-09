@@ -16,7 +16,7 @@ class SingleCommand extends Command {
   }
 
   @override
-  Command clone() {
+  SingleCommand clone() {
     return SingleCommand(name);
   }
 
@@ -96,7 +96,7 @@ class GroupCommand extends Command {
   }
 
   @override
-  Command clone() {
+  GroupCommand clone() {
     return GroupCommand(name, List.from(commands));
   }
 
@@ -109,4 +109,9 @@ class RootCommand extends GroupCommand {
 
   @override
   Color get color => const Color(0xFF00FF00);
+
+  @override
+  RootCommand clone() {
+    return RootCommand(List.from(commands));
+  }
 }

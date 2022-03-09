@@ -23,16 +23,6 @@ class _CommandItemState extends State<CommandItem> {
   void initState() {
     key = ObjectKey(this);
     super.initState();
-    activate();
-  }
-
-  @override
-  void activate() {
-    _commandsState = _CommandsViewState.of(context);
-    _commandsState!.registerItem(this);
-    _containerState = _CommandContainerState.of(context);
-    _containerState?.registerItem(this);
-    super.activate();
   }
 
   @override
@@ -63,10 +53,10 @@ class _CommandItemState extends State<CommandItem> {
 
   @override
   Widget build(BuildContext context) {
-    // _commandsState = _CommandsViewState.of(context);
-    // _commandsState!.registerItem(this);
-    // _containerState = _CommandContainerState.of(context);
-    // _containerState?.registerItem(this);
+    _commandsState = _CommandsViewState.of(context);
+    _commandsState!.registerItem(this);
+    _containerState = _CommandContainerState.of(context);
+    _containerState?.registerItem(this);
 
     if (widget.command is RootCommand) {
       return Padding(
@@ -129,7 +119,7 @@ class _CommandItemState extends State<CommandItem> {
             color: widget.command.color, // TODO: use color from Command
           ),
           child: Text(
-            "$index $name",
+            "$name",
             // "$index $name state:${key}, widget:${widget.key}, command:${widget.command.hashCode}",
             style: const TextStyle(color: Colors.white),
           ),

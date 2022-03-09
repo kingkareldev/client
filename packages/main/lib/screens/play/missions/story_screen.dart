@@ -7,17 +7,17 @@ import '../../../model/mission.dart';
 import '../../../model/story.dart';
 import '../../../router/router_bloc.dart';
 
-class StoryView extends StatefulWidget {
+class StoryScreen extends StatefulWidget {
   final StoryMission mission;
   final Story story;
 
-  const StoryView({required this.story, required this.mission, Key? key}) : super(key: key);
+  const StoryScreen({required this.story, required this.mission, Key? key}) : super(key: key);
 
   @override
-  State<StoryView> createState() => _StoryViewState();
+  State<StoryScreen> createState() => _StoryScreenState();
 }
 
-class _StoryViewState extends State<StoryView> {
+class _StoryScreenState extends State<StoryScreen> {
   int progress = 0;
 
   @override
@@ -27,9 +27,10 @@ class _StoryViewState extends State<StoryView> {
     return DefaultScreenContainer(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 80, bottom: 50),
+          padding: const EdgeInsets.symmetric(vertical: 100),
           child: Column(
             children: [
+              Text("yo"),
               Text(
                 widget.mission.name,
                 style: const TextStyle(fontSize: 24),

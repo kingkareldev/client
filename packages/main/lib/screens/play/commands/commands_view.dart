@@ -3,7 +3,10 @@ import 'dart:collection';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:main/extensions/string.dart';
 import 'package:main/model/command.dart';
+import 'package:main/screens/play/commands/commands_view_controller.dart';
 
 part 'command_container.dart';
 
@@ -12,7 +15,18 @@ part 'command_item.dart';
 part 'drag_proxy.dart';
 
 class CommandsView extends StatefulWidget {
-  const CommandsView({Key? key}) : super(key: key);
+  final RootCommand gameCommands;
+  final CommandsViewController controller;
+  final void Function(RootCommand) onSave;
+  final void Function(RootCommand) onRun;
+
+  const CommandsView({
+    required this.gameCommands,
+    required this.controller,
+    required this.onSave,
+    required this.onRun,
+    Key? key,
+  }) : super(key: key);
 
   @override
   _CommandsViewState createState() => _CommandsViewState();
@@ -41,8 +55,21 @@ class _CommandsViewState extends State<CommandsView> {
   HashMap<Key, _CommandItemState> get items => _items;
   final _items = HashMap<Key, _CommandItemState>();
 
+  RootCommand get gameCommands => widget.gameCommands;
+
   @override
   void initState() {
+    widget.controller.addListener(() {
+      switch (widget.controller.type) {
+        case NotifyEventType.run:
+          widget.onRun(gameCommands);
+          break;
+        case NotifyEventType.save:
+          widget.onSave(gameCommands);
+          break;
+      }
+    });
+
     _commandPalette = [
       SingleCommand('move'),
       SingleCommand('grab'),
@@ -53,6 +80,10 @@ class _CommandsViewState extends State<CommandsView> {
   }
 
   void registerItem(_CommandItemState item) {
+    if (_items.containsKey(item.key)) {
+      return;
+    }
+
     _items[item.key] = item;
 
     if (_dragging == null) {
@@ -62,6 +93,7 @@ class _CommandsViewState extends State<CommandsView> {
     // Update dragging key after the palette item moved to the tree view.
     if (_willBeDraggedFromPalette != null && _willBeDraggedFromPalette == item.widget.key) {
       _dragging = item.key;
+      //_willBeDraggedFromPalette = null;
     }
 
     // Update dragging key after the dragged item moved across the different tree levels.
@@ -99,42 +131,49 @@ class _CommandsViewState extends State<CommandsView> {
     return context.findAncestorStateOfType<_CommandsViewState>();
   }
 
-  // GroupCommand rootCommand = RootCommand([
-  //   SingleCommand('a'),
-  //   SingleCommand('b'),
-  //   SingleCommand('c'),
-  //   SingleCommand('d'),
-  //   SingleCommand('e'),
-  //   GroupCommand('lol', []),
-  //   GroupCommand('lol2', []),
-  //   GroupCommand('lol3', []),
-  // ]);
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations localization = AppLocalizations.of(context)!;
 
-  GroupCommand rootCommand = RootCommand([
-    SingleCommand('a'),
-    GroupCommand('1', [
-      SingleCommand('2'),
-      SingleCommand('3'),
-      SingleCommand('4'),
-    ]),
-    SingleCommand('b'),
-    GroupCommand('c', [
-      SingleCommand('d'),
-      SingleCommand('e'),
-      GroupCommand('f', [
-        SingleCommand('g'),
-        SingleCommand('h'),
-        GroupCommand('i', [
-          SingleCommand('j1'),
-          SingleCommand('j2'),
-          SingleCommand('j3'),
-        ]),
-      ]),
-      SingleCommand('k'),
-    ]),
-    SingleCommand('l'),
-    SingleCommand('m'),
-  ]);
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        ListView(
+          shrinkWrap: true,
+          children: [
+            Text("$gameCommands"),
+            Align(
+              alignment: Alignment.topLeft,
+              child: CommandItem(command: gameCommands),
+            ),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            color: Colors.black87.withOpacity(0.1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(localization.paletteTitle.toTitleCase()),
+                const SizedBox(height: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (final paletteCommand in _commandPalette)
+                      CommandItem(command: paletteCommand, isPalette: true, key: ObjectKey(paletteCommand)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const DragProxy(),
+      ],
+    );
+  }
 
   void _appendItem(List<int> itemIndex, List<int> containerIndex) {
     if (itemIndex.isEmpty) {
@@ -155,7 +194,7 @@ class _CommandsViewState extends State<CommandsView> {
       }
     }
 
-    final Command? item = rootCommand.removeAt(itemIndex);
+    final Command? item = gameCommands.removeAt(itemIndex);
     if (item == null) {
       return;
     }
@@ -168,24 +207,24 @@ class _CommandsViewState extends State<CommandsView> {
       containerIndex[itemIndex.length - 1]--;
     }
 
-    final Command? container = rootCommand.commandAt(containerIndex);
+    final Command? container = gameCommands.commandAt(containerIndex);
     if (container is GroupCommand) {
       final int length = container.commands.length;
       List<int> newIndex = List<int>.from(containerIndex)..add(length);
 
       // print("yooo append item $itemIndex to container $containerIndex");
-      rootCommand.insertAt(newIndex, item);
+      gameCommands.insertAt(newIndex, item);
     }
   }
 
   void _appendItemFromPalette(Command command, List<int> containerIndex) {
-    final Command? container = rootCommand.commandAt(containerIndex);
+    final Command? container = gameCommands.commandAt(containerIndex);
     if (container is GroupCommand) {
       final int length = container.commands.length;
       List<int> newIndex = List<int>.from(containerIndex)..add(length);
 
       _willBeDraggedFromPalette = ObjectKey(command);
-      rootCommand.insertAt(newIndex, command);
+      gameCommands.insertAt(newIndex, command);
     }
   }
 
@@ -193,7 +232,7 @@ class _CommandsViewState extends State<CommandsView> {
     if (itemIndex.isEmpty) return;
     //print("remove item $itemIndex");
 
-    rootCommand.removeAt(itemIndex);
+    gameCommands.removeAt(itemIndex);
   }
 
   void _insertItemBefore(List<int> itemIndex, List<int> afterItemIndex) {
@@ -219,7 +258,7 @@ class _CommandsViewState extends State<CommandsView> {
 
     // print("insert x $itemIndex before $afterItemIndex");
 
-    final item = rootCommand.removeAt(itemIndex);
+    final item = gameCommands.removeAt(itemIndex);
     if (item != null) {
       // If the current item was before the place we want to insert,
       // update the place so it's -1 from it previous position,
@@ -228,13 +267,13 @@ class _CommandsViewState extends State<CommandsView> {
           itemIndex[itemIndex.length - 1] < afterItemIndex[itemIndex.length - 1]) {
         afterItemIndex[itemIndex.length - 1]--;
       }
-      rootCommand.insertAt(afterItemIndex, item);
+      gameCommands.insertAt(afterItemIndex, item);
     }
   }
 
   void _insertItemBeforeFromPalette(Command command, List<int> afterItemIndex) {
     _willBeDraggedFromPalette = ObjectKey(command);
-    rootCommand.insertAt(afterItemIndex, command);
+    gameCommands.insertAt(afterItemIndex, command);
   }
 
   void _freeUpdate() {
@@ -243,37 +282,6 @@ class _CommandsViewState extends State<CommandsView> {
         _canUpdate = true;
       });
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.passthrough,
-      children: [
-        ListView(
-          shrinkWrap: true,
-          children: [
-            Text("$rootCommand"),
-            Align(
-              alignment: Alignment.topLeft,
-              child: CommandItem(command: rootCommand),
-            ),
-          ],
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              for (final paletteCommand in _commandPalette)
-                CommandItem(command: paletteCommand, isPalette: true, key: ObjectKey(paletteCommand)),
-            ],
-          ),
-        ),
-        const DragProxy(),
-      ],
-    );
   }
 
   void startDragging({required Key stateKey, required PointerDownEvent event}) {
@@ -325,66 +333,72 @@ class _CommandsViewState extends State<CommandsView> {
     }
     _canUpdate = false;
 
-    if (_dragging == null) {
-      _freeUpdate();
-      return;
-    }
+    try {
+      if (_dragging == null) {
+        _freeUpdate();
+        return;
+      }
 
-    if (!_items.containsKey(_dragging)) {
-      _freeUpdate();
-      return;
-    }
+      if (!_items.containsKey(_dragging)) {
+        _freeUpdate();
+        return;
+      }
 
-    // print("yoo UPDATE $event ${_items[_dragging]!.index}");
+      // print("yoo UPDATE $event ${_items[_dragging]!.index}");
 
-    final Offset position = event.globalPosition;
-    _CommandContainerState? closestContainer = _findClosestContainer(position: position);
-    // print("closest container of ${_items[_dragging]!.index} is ${closestContainer?.index}");
+      final Offset position = event.globalPosition;
+      _CommandContainerState? closestContainer = _findClosestContainer(position: position);
+      // print("closest container of ${_items[_dragging]!.index} is ${closestContainer?.index}");
 
-    if (closestContainer == null) {
-      // print("the drag is out, will be removed");
-      _willRemove = true;
-      _freeUpdate();
-      return;
-    }
-    _willRemove = false;
+      if (closestContainer == null) {
+        // print("the drag is out, will be removed");
+        _willRemove = true;
+        _freeUpdate();
+        return;
+      }
+      _willRemove = false;
 
-    /// FIND CLOSEST ITEM (REPLACE INDEX) INSIDE THAT CONTAINER
+      /// FIND CLOSEST ITEM (REPLACE INDEX) INSIDE THAT CONTAINER
 
-    final render = _items[_dragging]!.context.findRenderObject() as RenderBox;
-    _CommandItemState? afterItemDrag;
-    double smallestOffset = double.negativeInfinity;
-    closestContainer.items.forEach((itemKey, _CommandItemState item) {
-      final itemRender = item.context.findRenderObject() as RenderBox;
+      final render = _items[_dragging]!.context.findRenderObject() as RenderBox;
+      _CommandItemState? afterItemDrag;
+      double smallestOffset = double.negativeInfinity;
+      closestContainer.items.forEach((itemKey, _CommandItemState item) {
+        final itemRender = item.context.findRenderObject() as RenderBox;
 
-      // Except the current item.
-      if (!render.size.contains(itemRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero))) {
-        double offsetToItem = position.dy - itemRender.localToGlobal(Offset.zero).dy - itemRender.size.height / 2;
+        // Except the current item.
+        if (!render.size.contains(itemRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero))) {
+          double offsetToItem = position.dy - itemRender
+              .localToGlobal(Offset.zero)
+              .dy - itemRender.size.height / 2;
 
-        if (offsetToItem < 0 && offsetToItem > smallestOffset) {
-          smallestOffset = offsetToItem;
-          afterItemDrag = item;
+          if (offsetToItem < 0 && offsetToItem > smallestOffset) {
+            smallestOffset = offsetToItem;
+            afterItemDrag = item;
+          }
+        }
+      });
+
+      // Process inserting for commands items from the palette.
+      if (_items[_dragging]!.widget.isPalette) {
+        if (afterItemDrag == null) {
+          _appendItemFromPalette(_items[_dragging]!.widget.command.clone(), closestContainer.index);
+        } else {
+          _insertItemBeforeFromPalette(_items[_dragging]!.widget.command.clone(), afterItemDrag!.index);
         }
       }
-    });
+      // Or process reordering for command items from the tree view.
+      else {
+        if (afterItemDrag == null) {
+          _appendItem(_items[_dragging]!.index, closestContainer.index);
+        } else {
+          _insertItemBefore(_items[_dragging]!.index, afterItemDrag!.index);
+        }
 
-    // Process inserting for commands items from the palette.
-    if (_items[_dragging]!.widget.isPalette) {
-      if (afterItemDrag == null) {
-        _appendItemFromPalette(_items[_dragging]!.widget.command.clone(), closestContainer.index);
-      } else {
-        _insertItemBeforeFromPalette(_items[_dragging]!.widget.command.clone(), afterItemDrag!.index);
+        _items[_dragging]?.update();
       }
-    }
-    // Or process reordering for command items from the tree view.
-    else {
-      if (afterItemDrag == null) {
-        _appendItem(_items[_dragging]!.index, closestContainer.index);
-      } else {
-        _insertItemBefore(_items[_dragging]!.index, afterItemDrag!.index);
-      }
-
-      _items[_dragging]?.update();
+    } catch (e) {
+      print("!!!!!!! $e");
     }
 
     _freeUpdate();

@@ -26,7 +26,7 @@ class _StatsScreenState extends State<StatsScreen> {
     return DefaultScreenContainer(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 200),
+          padding: const EdgeInsets.symmetric(vertical: 100),
           child: Column(
             children: [
               Text(

@@ -17,7 +17,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return DefaultScreenContainer(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 200),
+          padding: const EdgeInsets.symmetric(vertical: 100),
           child: Align(
             alignment: Alignment.center,
             child: Column(

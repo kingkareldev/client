@@ -40,7 +40,7 @@ class MissionDialog extends StatelessWidget {
           color: Colors.black87.withOpacity(0.5),
           child: Center(
             child: GestureDetector(
-              onTap: () => onToStory(),
+              onTap: () => {},
               child: MouseRegion(
                 cursor: SystemMouseCursors.basic,
                 child: Container(

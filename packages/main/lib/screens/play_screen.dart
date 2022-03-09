@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:main/screens/play/stories.dart';
-import 'package:main/screens/play/mission.dart';
-import 'package:main/screens/play/story.dart';
+import 'package:main/screens/play/stories_screen.dart';
+import 'package:main/screens/play/mission_screen.dart';
+import 'package:main/screens/play/story_screen.dart';
 
 import '../router/no_animation_transition_delegate.dart';
 import '../router/router_bloc.dart';
