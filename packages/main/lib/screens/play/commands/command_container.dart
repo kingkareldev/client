@@ -60,7 +60,7 @@ class _CommandContainerState extends State<CommandContainer> {
 
     final boxDecoration = BoxDecoration(
       border: Border(
-        left: BorderSide(width: widget.root ? 0 : 10, color: Colors.blue),
+        left: BorderSide(width: widget.root ? 0 : 10, color: command.color),
       ),
     );
 

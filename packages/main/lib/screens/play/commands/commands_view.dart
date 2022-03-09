@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:main/screens/play/commands/model/command.dart';
+import 'package:main/model/command.dart';
 
 part 'command_container.dart';
 

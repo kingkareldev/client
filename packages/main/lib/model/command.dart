@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 abstract class Command {
+  Color get color;
   Command clone();
 }
 
@@ -16,6 +19,9 @@ class SingleCommand extends Command {
   Command clone() {
     return SingleCommand(name);
   }
+
+  @override
+  Color get color => const Color(0xFF0000FF);
 }
 
 class GroupCommand extends Command {
@@ -93,8 +99,14 @@ class GroupCommand extends Command {
   Command clone() {
     return GroupCommand(name, List.from(commands));
   }
+
+  @override
+  Color get color => const Color(0xFFFF0000);
 }
 
 class RootCommand extends GroupCommand {
   RootCommand(List<Command> commands) : super('root', commands);
+
+  @override
+  Color get color => const Color(0xFF00FF00);
 }

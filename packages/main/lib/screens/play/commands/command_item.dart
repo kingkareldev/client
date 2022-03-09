@@ -125,8 +125,8 @@ class _CommandItemState extends State<CommandItem> {
         onPointerDown: (event) => _processPointer(context, event),
         child: Container(
           padding: const EdgeInsets.all(8),
-          decoration: const BoxDecoration(
-            color: Colors.blue, // TODO: use color from Command
+          decoration: BoxDecoration(
+            color: widget.command.color, // TODO: use color from Command
           ),
           child: Text(
             "$index $name",
