@@ -24,6 +24,8 @@ class _CommandsViewState extends State<CommandsView> {
   Key? get dragging => _dragging;
   Key? _draggingWidgetKey;
 
+  Key? _willBeDraggedFromPalette;
+
   bool _canUpdate = true;
 
   bool _willRemove = false;
@@ -34,14 +36,36 @@ class _CommandsViewState extends State<CommandsView> {
 
   DragGestureRecognizer? _recognizer;
 
+  late List<Command> _commandPalette;
+
   HashMap<Key, _CommandItemState> get items => _items;
   final _items = HashMap<Key, _CommandItemState>();
+
+  @override
+  void initState() {
+    _commandPalette = [
+      SingleCommand('move'),
+      SingleCommand('grab'),
+      SingleCommand('put'),
+      GroupCommand('if', []),
+    ];
+    super.initState();
+  }
 
   void registerItem(_CommandItemState item) {
     _items[item.key] = item;
 
+    if (_dragging == null) {
+      return;
+    }
+
+    // Update dragging key after the palette item moved to the tree view.
+    if (_willBeDraggedFromPalette != null && _willBeDraggedFromPalette == item.widget.key) {
+      _dragging = item.key;
+    }
+
     // Update dragging key after the dragged item moved across the different tree levels.
-    if (_dragging != null && _draggingWidgetKey == item.widget.key && _dragging != item.key) {
+    if (_draggingWidgetKey == item.widget.key && _dragging != item.key) {
       _dragging = item.key;
     }
   }
@@ -154,6 +178,17 @@ class _CommandsViewState extends State<CommandsView> {
     }
   }
 
+  void _appendItemFromPalette(Command command, List<int> containerIndex) {
+    final Command? container = rootCommand.commandAt(containerIndex);
+    if (container is GroupCommand) {
+      final int length = container.commands.length;
+      List<int> newIndex = List<int>.from(containerIndex)..add(length);
+
+      _willBeDraggedFromPalette = ObjectKey(command);
+      rootCommand.insertAt(newIndex, command);
+    }
+  }
+
   void _removeItem(List<int> itemIndex) {
     if (itemIndex.isEmpty) return;
     //print("remove item $itemIndex");
@@ -197,50 +232,44 @@ class _CommandsViewState extends State<CommandsView> {
     }
   }
 
+  void _insertItemBeforeFromPalette(Command command, List<int> afterItemIndex) {
+    _willBeDraggedFromPalette = ObjectKey(command);
+    rootCommand.insertAt(afterItemIndex, command);
+  }
+
   void _freeUpdate() {
-    print("free start");
     SchedulerBinding.instance!.addPostFrameCallback((Duration timeStamp) {
-      print("free scheduler");
       setState(() {
         _canUpdate = true;
-        print("free done");
       });
     });
-    // setState(() {
-    //   // _canUpdate = true;
-    //   print("free setstate");
-    //   if (_items.containsKey(_dragging)) {
-    //     _items[_dragging]!.update();
-    //   }
-    // });
   }
 
   @override
   Widget build(BuildContext context) {
-    Container(
-      padding: const EdgeInsets.all(30),
-      color: Colors.blue,
-      child: IconButton(
-        icon: const Icon(Icons.arrow_left),
-        onPressed: () {},
-      ),
-    );
     return Stack(
       fit: StackFit.passthrough,
       children: [
         ListView(
           shrinkWrap: true,
           children: [
+            Text("$rootCommand"),
             Align(
               alignment: Alignment.topLeft,
               child: CommandItem(command: rootCommand),
             ),
-            Text("$rootCommand"),
-            // Text("${_draggingWidgetKey}"),
-            // Text("${_items.containsKey(_dragging) ? _items[_dragging]!.index : null}"),
-            // Text("${_canUpdate}"),
-            // Text("$_containers"),
           ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final paletteCommand in _commandPalette)
+                CommandItem(command: paletteCommand, isPalette: true, key: ObjectKey(paletteCommand)),
+            ],
+          ),
         ),
         const DragProxy(),
       ],
@@ -263,7 +292,6 @@ class _CommandsViewState extends State<CommandsView> {
     _dragging = stateKey;
     final _CommandItemState? dragged = _items[_dragging]!;
     if (dragged == null) {
-      print("WTF");
       _freeUpdate();
       return;
     }
@@ -285,13 +313,11 @@ class _CommandsViewState extends State<CommandsView> {
     _recognizer!.onEnd = _endDragging;
     _recognizer!.dragStartBehavior = DragStartBehavior.start;
     _recognizer!.addPointer(event);
-    print("yoo RECOGNIZER ok");
 
     // _freeUpdate();
   }
 
   void _updateDragging(DragUpdateDetails event) {
-    print(event);
     _dragProxy?.updateOffset(event.delta);
 
     if (!_canUpdate) {
@@ -342,15 +368,24 @@ class _CommandsViewState extends State<CommandsView> {
       }
     });
 
-    if (afterItemDrag == null) {
-      //print("append ${_items[_dragging]!.index} to container ${closestContainer.index}");
-      _appendItem(_items[_dragging]!.index, closestContainer.index);
-    } else {
-      //print("insert ${_items[_dragging]!.index} before ${afterItemDrag!.index}");
-      _insertItemBefore(_items[_dragging]!.index, afterItemDrag!.index);
+    // Process inserting for commands items from the palette.
+    if (_items[_dragging]!.widget.isPalette) {
+      if (afterItemDrag == null) {
+        _appendItemFromPalette(_items[_dragging]!.widget.command.clone(), closestContainer.index);
+      } else {
+        _insertItemBeforeFromPalette(_items[_dragging]!.widget.command.clone(), afterItemDrag!.index);
+      }
     }
+    // Or process reordering for command items from the tree view.
+    else {
+      if (afterItemDrag == null) {
+        _appendItem(_items[_dragging]!.index, closestContainer.index);
+      } else {
+        _insertItemBefore(_items[_dragging]!.index, afterItemDrag!.index);
+      }
 
-    _items[_dragging]?.update();
+      _items[_dragging]?.update();
+    }
 
     _freeUpdate();
   }
@@ -389,21 +424,9 @@ class _CommandsViewState extends State<CommandsView> {
 
         // The drag position is inside target area.
         // if (container.key == _CommandContainerState.of(_items[_dragging]!.context)!.key) {
-        if (containerRender.size.contains(position - containerRender.localToGlobal(Offset.zero) + Offset(2, 2))) {
-          // print("container: ${containerRender.localToGlobal(Offset.zero)} vs self: ${render.localToGlobal(Offset.zero)} == ${containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero)} ... ${render.size}");
-          // print("x 2 --- ${render.localToGlobal(Offset.zero)} ... ${containerRender.localToGlobal(Offset.zero)}");
-          // print(
-          //     "keys self: ${_items[_dragging]!.key} or $_dragging, container item state: ${_CommandItemState.of(container.context)?.key}");
-          // print("yoo is self recursive? ${container._isChildOfItem(_dragging!)}");
-
-          // print(
-          //     "__!!__ ${!render.size.contains(containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero) + Offset(2, 2)) == !container._isChildOfItem(_dragging!)}");
-
+        if (containerRender.size.contains(position - containerRender.localToGlobal(Offset.zero) + const Offset(2, 2))) {
           // But it is not subtree of original item.
           if (!container._isChildOfItem(_dragging!)) {
-            // if (!render.size.contains(
-            //    containerRender.localToGlobal(Offset.zero) - render.localToGlobal(Offset.zero) - Offset(2, 2))) {
-
             // Find closest one.
             if (container.index.length > maxIndexes) {
               maxIndexes = container.index.length;

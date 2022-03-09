@@ -3,8 +3,9 @@ part of 'commands_view.dart';
 class CommandItem extends StatefulWidget {
   final Command command;
   final List<int> index;
+  final bool isPalette;
 
-  const CommandItem({required this.command, this.index = const [], Key? key}) : super(key: key);
+  const CommandItem({required this.command, this.index = const [], this.isPalette = false, Key? key}) : super(key: key);
 
   @override
   _CommandItemState createState() => _CommandItemState();
@@ -22,6 +23,16 @@ class _CommandItemState extends State<CommandItem> {
   void initState() {
     key = ObjectKey(this);
     super.initState();
+    activate();
+  }
+
+  @override
+  void activate() {
+    _commandsState = _CommandsViewState.of(context);
+    _commandsState!.registerItem(this);
+    _containerState = _CommandContainerState.of(context);
+    _containerState?.registerItem(this);
+    super.activate();
   }
 
   @override
@@ -52,10 +63,10 @@ class _CommandItemState extends State<CommandItem> {
 
   @override
   Widget build(BuildContext context) {
-    _commandsState = _CommandsViewState.of(context);
-    _commandsState!.registerItem(this);
-    _containerState = _CommandContainerState.of(context);
-    _containerState?.registerItem(this);
+    // _commandsState = _CommandsViewState.of(context);
+    // _commandsState!.registerItem(this);
+    // _containerState = _CommandContainerState.of(context);
+    // _containerState?.registerItem(this);
 
     if (widget.command is RootCommand) {
       return Padding(
@@ -69,10 +80,15 @@ class _CommandItemState extends State<CommandItem> {
       );
     }
 
+    double opacity = 1;
+    if (!widget.isPalette) {
+      opacity = key == _commandsState?.dragging ? (_commandsState?.willRemove ?? false ? 0.1 : 0.4) : 1;
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Opacity(
-        opacity: key == _commandsState?.dragging ? (_commandsState?.willRemove ?? false ? 0.1 : 0.4) : 1,
+        opacity: opacity,
         child: _buildContent(),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:main/authentication/authentication_bloc.dart';
 import 'package:main/components/inline_hover_button.dart';
 import 'package:main/extensions/string.dart';
 
@@ -11,6 +12,7 @@ class Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthenticationBloc authBloc = BlocProvider.of<AuthenticationBloc>(context);
     final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
     final AppLocalizations localization = AppLocalizations.of(context)!;
 
@@ -74,42 +76,77 @@ class Footer extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
                   onPressed: () => routerBloc.add(ToHomeRoute()),
-                  child: Text('home'),
+                  child: const Text('home'),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
                   onPressed: () => routerBloc.add(ToUnknownRoute()),
-                  child: Text('unknown'),
+                  child: const Text('unknown'),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
                   onPressed: () => routerBloc.add(ToStoriesRoute()),
-                  child: Text('play'),
+                  child: const Text('play'),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
-                  onPressed: () => routerBloc.add(ToMissionRoute('someStory', 'someMission')),
-                  child: Text('mission'),
+                  onPressed: () => routerBloc.add(ToMissionRoute('the-story-continues', 'x3')),
+                  child: const Text('mission'),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
                   onPressed: () => routerBloc.add(ToProfileRoute()),
-                  child: Text('profile'),
+                  child: const Text('profile'),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
                   onPressed: () => routerBloc.add(ToSettingsRoute()),
-                  child: Text('settings'),
+                  child: const Text('settings'),
+                ),
+              ),
+            ],
+          ),
+          Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: InlineHoverButton(
+                  onPressed: () => authBloc.add(RestoreAuthentication()),
+                  child: const Text('restore-authentication'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: InlineHoverButton(
+                  onPressed: () => authBloc.add(Authenticate()),
+                  child: const Text('authenticate'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: InlineHoverButton(
+                  onPressed: () => authBloc.add(RemoveAuthentication()),
+                  child: const Text('unauthenticate'),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                  builder: (context, state) {
+                    return Text("$state");
+                  },
                 ),
               ),
             ],

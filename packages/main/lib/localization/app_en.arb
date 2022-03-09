@@ -11,6 +11,16 @@
     "description": "The title of the application"
   },
 
+  "appHomeDescription": "King Karel is an educational game with programming puzzles. The game aims at children and other beginners, who will playfully learn the concepts of programming and algorithms.",
+  "@appHomeDescription": {
+    "description": "The description on main screen of the application"
+  },
+
+  "profileSettingsButton": "go to settings",
+  "@profileSettingsButton": {
+    "description": "The button to go to settings in profile screen"
+  },
+
   "unknownScreenTitle": "404",
   "@unknownScreenTitle": {
     "description": "The title of the unknown screen"
@@ -39,9 +49,82 @@
   },
   "storiesButton": "stories",
   "@storiesButton": {
-    "description": "The description of stories button"
+    "description": "The description of stories button."
   },
 
+  "noDataLabel": "There are no data available.",
+  "@noDataLabel": {
+    "description": "The label for places where no data are available."
+  },
+
+  "missionFailDescription": "You have failed the mission. Try again!",
+  "@missionFailDescription": {
+    "description": "The description for fail dialog on the mission screen."
+  },
+  "missionSuccessDescription": "Congratulations! You have successfully completed the mission!",
+  "@missionSuccessDescription": {
+    "description": "The description for success dialog on the mission screen."
+  },
+  "missionDialogTryAgainButton": "try again",
+  "@missionDialogTryAgainButton": {
+    "description": "The button for dialog try again button."
+  },
+  "missionDialogBackToStoryButton": "back to the story",
+  "@missionDialogBackToStoryButton": {
+    "description": "The button for dialog back to the story button."
+  },
+
+  "statsTitle": "stats",
+  "@statsTitle": {
+    "description": "The title of the stats screen."
+  },
+  "statsUsernameColumn": "username",
+  "@statsUsernameColumn": {
+    "description": "The title of the column for username on stats screen."
+  },
+  "statsCompletedColumn": "completed",
+  "@statsCompletedColumn": {
+    "description": "The title of the column for completed on stats screen."
+  },
+  "statsSizeColumn": "size",
+  "@statsSizeColumn": {
+    "description": "The title of the column for size on stats screen."
+  },
+  "statsSpeedColumn": "speed",
+  "@statsSpeedColumn": {
+    "description": "The title of the column for speed on stats screen."
+  },
+
+  "formFieldValidatorEmptyText": "Please enter some text",
+  "@formFieldValidatorEmptyText": {
+    "description": "The text of form field validator while being entry"
+  },
+
+  "formUsernameLabel": "username",
+  "@formUsernameLabel": {
+    "description": "The label of the username text input"
+  },
+  "formRealNameLabel": "real name",
+  "@formRealNameLabel": {
+    "description": "The label of the real name text input"
+  },
+  "formPasswordLabel": "password",
+  "@formPasswordLabel": {
+    "description": "The label of the password text input"
+  },
+  "formDescriptionLabel": "description",
+  "@formDescriptionLabel": {
+    "description": "The label of the description text input"
+  },
+  "formEmailLabel": "email",
+  "@formEmailLabel": {
+    "description": "The label of the email text input"
+  },
+
+  "signInTitle": "sign in",
+  "@signInTitle": {
+    "description": "The description of sign in screen"
+  },
   "signInButton": "sign in",
   "@signInButton": {
     "description": "The description of sign in button"
@@ -62,6 +145,10 @@
     "description": "The description of profile button"
   },
 
+  "settingsTitle": "settings",
+  "@settingsTitle": {
+    "description": "The description of settings screen title"
+  },
   "settingsButton": "settings",
   "@settingsButton": {
     "description": "The description of settings button"

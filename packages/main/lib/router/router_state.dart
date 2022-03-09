@@ -1,5 +1,11 @@
 part of 'router_bloc.dart';
 
+/// Marks a route so only the authenticated users can access it.
+abstract class RequiresAuthentication {}
+
+/// Marks a route so only the unauthenticated users can access it.
+abstract class ForbiddenAfterAuthentication {}
+
 @immutable
 abstract class RouterState {}
 
@@ -11,15 +17,13 @@ class UnknownRoute extends RouterState {}
 
 abstract class SignRoute extends RouterState {}
 
-class SignInRoute extends SignRoute {}
+class SignInRoute extends SignRoute implements ForbiddenAfterAuthentication {}
 
-class SignUpRoute extends SignRoute {}
-
-class SignOutRoute extends SignRoute {}
+class SignUpRoute extends SignRoute implements ForbiddenAfterAuthentication {}
 
 // Play
 
-abstract class PlayRoute extends RouterState {}
+abstract class PlayRoute extends RouterState implements RequiresAuthentication {}
 
 class StoriesRoute extends PlayRoute {}
 
@@ -38,11 +42,11 @@ class MissionRoute extends PlayRoute {
 
 // Other
 
-class StatsRoute extends RouterState {}
+class StatsRoute extends RouterState implements RequiresAuthentication {}
 
-class ProfileRoute extends RouterState {}
+class ProfileRoute extends RouterState implements RequiresAuthentication {}
 
-class SettingsRoute extends RouterState {}
+class SettingsRoute extends RouterState implements RequiresAuthentication {}
 
 // About
 

@@ -108,7 +108,6 @@ class _CommandContainerState extends State<CommandContainer> {
       return false;
     }
 
-    print("container $itemKey vs ");
     return _CommandItemState.of(context)?.key == itemKey ||
         (_CommandContainerState.of(context)?._isChildOfItem(itemKey) ?? false);
   }

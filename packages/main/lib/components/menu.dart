@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
+import 'package:main/authentication/authentication_bloc.dart';
 import 'package:main/extensions/string.dart';
 
 import '../router/router_bloc.dart';
@@ -16,9 +17,8 @@ class Menu extends StatelessWidget {
     final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
     final AppLocalizations localization = AppLocalizations.of(context)!;
 
-    return BlocBuilder<RouterBloc, RouterState>(
-      bloc: routerBloc,
-      builder: (context, state) {
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+      builder: (context, authState) {
         return Container(
           color: Colors.white,
           child: Padding(
@@ -48,8 +48,7 @@ class Menu extends StatelessWidget {
                   direction: Axis.horizontal,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    // TODO: if signed in
-                    if (true) ...[
+                    if (authState is Authenticated) ...[
                       OverlayButton(
                         onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToStoriesRoute()),
                         child: Row(
@@ -103,7 +102,7 @@ class Menu extends StatelessWidget {
                                 ),
                               ),
                               InlineHoverButton(
-                                onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToSignOutRoute()),
+                                onPressed: () => BlocProvider.of<AuthenticationBloc>(context).add(RemoveAuthentication()),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                   child: Text(localization.signOutButton.toTitleCase()),
@@ -115,8 +114,7 @@ class Menu extends StatelessWidget {
                       ),
                     ],
 
-                    // TODO: if not signed in
-                    if (true) ...[
+                    if (authState is Unauthenticated) ...[
                       OverlayButton(
                         onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToSignInRoute()),
                         child: Row(
@@ -147,82 +145,6 @@ class Menu extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class CountriesField extends StatefulWidget {
-  @override
-  _CountriesFieldState createState() => _CountriesFieldState();
-}
-
-class _CountriesFieldState extends State<CountriesField> {
-  final FocusNode _focusNode = FocusNode();
-
-  OverlayEntry? _overlayEntry;
-
-  final LayerLink _layerLink = LayerLink();
-
-  @override
-  void initState() {
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus) {
-        _overlayEntry = _createOverlayEntry();
-        Overlay.of(context)?.insert(_overlayEntry!);
-      } else {
-        _overlayEntry?.remove();
-      }
-    });
-  }
-
-  OverlayEntry _createOverlayEntry() {
-    RenderBox renderBox = context.findRenderObject() as RenderBox;
-    var size = renderBox.size;
-
-    return OverlayEntry(
-        builder: (context) => Positioned(
-              width: size.width,
-              //left: _layerLink.leaderSize?.topLeft(renderBox.localToGlobal(Offset.zero)).dx,
-              child: Container(
-                color: Colors.red,
-                child: CompositedTransformFollower(
-                  link: _layerLink,
-                  showWhenUnlinked: false,
-                  offset: Offset(0.0, size.height + 5.0),
-                  child: Material(
-                    elevation: 4.0,
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      children: <Widget>[
-                        ListTile(
-                          title: const Text('Syria'),
-                          onTap: () {
-                            print('Syria Tapped');
-                          },
-                        ),
-                        ListTile(
-                          title: const Text('Lebanon'),
-                          onTap: () {
-                            print('Lebanon Tapped');
-                          },
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: TextFormField(
-        focusNode: _focusNode,
-        decoration: const InputDecoration(labelText: 'Country'),
-      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:main/authentication/authentication_bloc.dart';
 import 'package:meta/meta.dart';
 
 part 'router_event.dart';
@@ -6,80 +7,113 @@ part 'router_event.dart';
 part 'router_state.dart';
 
 class RouterBloc extends Bloc<RouterEvent, RouterState> {
-  RouterBloc() : super(HomeRoute()) {
+  final AuthenticationBloc _authBloc;
+
+  RouterBloc({required AuthenticationBloc authBloc})
+      : _authBloc = authBloc,
+        super(HomeRoute()) {
+    authBloc.stream.forEach(_authBlocUpdated);
+
     on<ToHomeRoute>((event, emit) {
-      emit(HomeRoute());
+      _authEmitMiddleware(nextState: HomeRoute(), emit: emit);
     });
     on<ToUnknownRoute>((event, emit) {
-      emit(UnknownRoute());
+      _authEmitMiddleware(nextState: UnknownRoute(), emit: emit);
     });
 
     // Sign
 
     on<ToSignInRoute>((event, emit) {
-      emit(SignInRoute());
+      _authEmitMiddleware(nextState: SignInRoute(), emit: emit);
     });
     on<ToSignUpRoute>((event, emit) {
-      emit(SignUpRoute());
-    });
-    on<ToSignOutRoute>((event, emit) {
-      emit(SignOutRoute());
+      _authEmitMiddleware(nextState: SignUpRoute(), emit: emit);
     });
 
     // Play
     // TODO: signed in
 
     on<ToStoriesRoute>((event, emit) {
-      emit(StoriesRoute());
+      _authEmitMiddleware(nextState: StoriesRoute(), emit: emit);
     });
     on<ToStoryRoute>((event, emit) {
-      emit(StoryRoute(event.id));
+      _authEmitMiddleware(nextState: StoryRoute(event.id), emit: emit);
     });
     on<ToMissionRoute>((event, emit) {
-      emit(MissionRoute(event.storyId, event.missionId));
+      _authEmitMiddleware(nextState: MissionRoute(event.storyId, event.missionId), emit: emit);
     });
 
     // Other
     // TODO: signed in
 
     on<ToStatsRoute>((event, emit) {
-      emit(StatsRoute());
+      _authEmitMiddleware(nextState: StatsRoute(), emit: emit);
     });
     on<ToProfileRoute>((event, emit) {
-      emit(ProfileRoute());
+      _authEmitMiddleware(nextState: ProfileRoute(), emit: emit);
     });
     on<ToSettingsRoute>((event, emit) {
-      emit(SettingsRoute());
+      _authEmitMiddleware(nextState: SettingsRoute(), emit: emit);
     });
 
     // About
 
     on<ToInfoRoute>((event, emit) {
-      emit(InfoRoute());
+      _authEmitMiddleware(nextState: InfoRoute(), emit: emit);
     });
     on<ToApproachRoute>((event, emit) {
-      emit(ApproachRoute());
+      _authEmitMiddleware(nextState: ApproachRoute(), emit: emit);
     });
     on<ToPressRoute>((event, emit) {
-      emit(PressRoute());
+      _authEmitMiddleware(nextState: PressRoute(), emit: emit);
     });
     on<ToContactRoute>((event, emit) {
-      emit(ContactRoute());
+      _authEmitMiddleware(nextState: ContactRoute(), emit: emit);
     });
     on<ToAppsRoute>((event, emit) {
-      emit(AppsRoute());
+      _authEmitMiddleware(nextState: AppsRoute(), emit: emit);
     });
     on<ToHelpRoute>((event, emit) {
-      emit(HelpRoute());
+      _authEmitMiddleware(nextState: HelpRoute(), emit: emit);
     });
     on<ToGuidelinesRoute>((event, emit) {
-      emit(GuidelinesRoute());
+      _authEmitMiddleware(nextState: GuidelinesRoute(), emit: emit);
     });
     on<ToTermsRoute>((event, emit) {
-      emit(TermsRoute());
+      _authEmitMiddleware(nextState: TermsRoute(), emit: emit);
     });
     on<ToPrivacyRoute>((event, emit) {
-      emit(PrivacyRoute());
+      _authEmitMiddleware(nextState: PrivacyRoute(), emit: emit);
     });
+  }
+
+  // Calls the [callback] if authentication state allows it.
+  void _authEmitMiddleware({required RouterState? nextState, required Emitter emit}) {
+    final AuthenticationState authState = _authBloc.state;
+
+    if (nextState is RequiresAuthentication && authState is Unauthenticated) {
+      emit(SignInRoute());
+      return;
+    }
+
+    if (nextState is ForbiddenAfterAuthentication && authState is Authenticated) {
+      emit(HomeRoute());
+      return;
+    }
+
+    if (nextState != null) {
+      emit(nextState);
+    }
+  }
+
+  void _authBlocUpdated(AuthenticationState authState) {
+    if (authState is Authenticated) {
+      if (!authState.isRestored) {
+        add(ToProfileRoute());
+      }
+      return;
+    }
+
+    add(ToHomeRoute());
   }
 }

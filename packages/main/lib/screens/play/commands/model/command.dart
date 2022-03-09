@@ -1,4 +1,6 @@
-abstract class Command {}
+abstract class Command {
+  Command clone();
+}
 
 class SingleCommand extends Command {
   final String name;
@@ -8,6 +10,11 @@ class SingleCommand extends Command {
   @override
   String toString() {
     return name;
+  }
+
+  @override
+  Command clone() {
+    return SingleCommand(name);
   }
 }
 
@@ -24,7 +31,6 @@ class GroupCommand extends Command {
 
   void insertAt(List<int> index, Command command) {
     if (index.isEmpty) {
-      print("!! !! IT WAS EMPTY");
       return;
     }
 
@@ -36,19 +42,15 @@ class GroupCommand extends Command {
     Command child = commands[index.first];
     if (child is GroupCommand) {
       child.insertAt(index.sublist(1), command);
-    } else {
-      print("oops");
     }
   }
 
   Command? removeAt(List<int> index) {
-    print("remove $index in $commands");
     // print("removeAt ${index}");
     if (index.length == 1) {
       // print("removeAt == 1, ${index.first} / ${commands.length}");
       // print("commands $commands");
       if (index.first >= commands.length) {
-        print("greater");
         return null;
       }
       return commands.removeAt(index.first);
@@ -60,7 +62,6 @@ class GroupCommand extends Command {
       return child.removeAt(index.sublist(1));
     }
 
-    print("remove null $index -- ${child.runtimeType}");
     return null;
   }
 
@@ -86,6 +87,11 @@ class GroupCommand extends Command {
     }
 
     return null;
+  }
+
+  @override
+  Command clone() {
+    return GroupCommand(name, List.from(commands));
   }
 }
 

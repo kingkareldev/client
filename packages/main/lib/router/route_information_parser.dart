@@ -26,10 +26,6 @@ class AppRouteInformationParser extends RouteInformationParser<RouteConfig> {
       return SignUpRouteConfig();
     }
 
-    if (uri.pathSegments[0] == 'signout' && uri.pathSegments.length == 1) {
-      return SignOutRouteConfig();
-    }
-
     // Play
 
     if (uri.pathSegments[0] == 'play') {
@@ -119,10 +115,6 @@ class AppRouteInformationParser extends RouteInformationParser<RouteConfig> {
 
     if (configuration is SignUpRouteConfig) {
       return const RouteInformation(location: '/signup');
-    }
-
-    if (configuration is SignOutRouteConfig) {
-      return const RouteInformation(location: '/signout');
     }
 
     // Play

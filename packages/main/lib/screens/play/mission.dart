@@ -5,7 +5,6 @@ import 'package:main/screens/play/missions/story.dart';
 
 import '../../model/mission.dart';
 import '../../model/story.dart';
-import 'commands/commands_view.dart';
 import 'missions/learning.dart';
 
 class MissionScreen extends StatefulWidget {

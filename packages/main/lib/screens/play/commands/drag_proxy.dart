@@ -12,7 +12,7 @@ class _DragProxyState extends State<DragProxy> {
   Size _size = Size.zero;
   Offset _offset = Offset.zero;
 
-  void setWidget(Widget widget, RenderBox position) {
+  void setWidget(CommandItem widget, RenderBox position) {
     setState(() {
       //_decorationOpacity = 1.0;
       _widget = widget;

@@ -4,5 +4,5 @@ class User {
   final String email;
   final String description;
 
-  User(this.username, this.realName, this.email, this.description);
+  User({required this.username, required this.realName, required this.email, required this.description});
 }

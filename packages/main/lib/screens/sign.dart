@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main/screens/sign/signin.dart';
-import 'package:main/screens/sign/signout.dart';
 import 'package:main/screens/sign/signup.dart';
 
 import '../router/no_animation_transition_delegate.dart';
@@ -31,11 +30,6 @@ class SignScreen extends StatelessWidget {
                 const MaterialPage(
                   key: ValueKey('sign signup'),
                   child: SignUpScreen(),
-                ),
-              if (routerState is SignOutRoute)
-                const MaterialPage(
-                  key: ValueKey('sign signout'),
-                  child: SignOutScreen(),
                 ),
             ],
           );

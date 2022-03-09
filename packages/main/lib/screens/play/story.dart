@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:main/components/default_screen_container.dart';
 import 'package:main/extensions/iterable.dart';
 import 'package:main/screens/play/components/mission_item.dart';
 
 import '../../model/mission.dart';
 import '../../model/story.dart';
-import '../../router/router_bloc.dart';
 import 'components/mission_overlay.dart';
 
 class StoryScreen extends StatefulWidget {
@@ -80,8 +78,6 @@ class _StoryScreenState extends State<StoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
-
     return DefaultScreenContainer(
       children: [
         if (story == null)

@@ -7,7 +7,7 @@ class MissionItem extends StatefulWidget {
   final Mission mission;
   final void Function(BuildContext, LayerLink, Mission)? onPressed;
 
-  MissionItem({required this.mission, this.onPressed, Key? key}) : super(key: key);
+  const MissionItem({required this.mission, this.onPressed, Key? key}) : super(key: key);
 
   @override
   State<MissionItem> createState() => _MissionItemState();

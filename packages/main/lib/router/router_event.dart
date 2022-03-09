@@ -13,8 +13,6 @@ class ToSignInRoute extends RouterEvent {}
 
 class ToSignUpRoute extends RouterEvent {}
 
-class ToSignOutRoute extends RouterEvent {}
-
 // Play
 
 class ToStoriesRoute extends RouterEvent {}

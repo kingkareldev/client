@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:main/router/no_animation_transition_delegate.dart';
 
 import '../components/menu.dart';
 import 'app_frame.dart';
@@ -37,18 +36,5 @@ class AppWindow extends StatelessWidget {
         ],
       ),
     );
-
-    // return Navigator(
-    //   transitionDelegate: NoAnimationTransitionDelegate(),
-    //   onPopPage: (route, result) {
-    //     print("window pop");
-    //     return false;
-    //   },
-    //   pages: [
-    //     MaterialPage(
-    //       child:,
-    //     ),
-    //   ],
-    // );
   }
 }

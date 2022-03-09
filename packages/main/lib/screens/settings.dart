@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:main/components/default_screen_container.dart';
-import 'package:main/extensions/string.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -24,7 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 Text(
-                  'settings',
+                  localization.settingsTitle,
                   style: Theme.of(context).textTheme.headline4,
                 ),
               ],

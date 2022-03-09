@@ -70,6 +70,8 @@ class _OverlayButtonState extends State<OverlayButton> {
   }
 
   void onHoverEnter(PointerEnterEvent event) {
+    if (!mounted) return;
+
     setState(() {
       isChildHovered = true;
     });
@@ -87,6 +89,8 @@ class _OverlayButtonState extends State<OverlayButton> {
   }
 
   void onHoverExit(PointerExitEvent event) {
+    if (!mounted) return;
+
     setState(() {
       isChildHovered = false;
     });
@@ -95,12 +99,16 @@ class _OverlayButtonState extends State<OverlayButton> {
   }
 
   void onOverlayEnter(PointerEnterEvent event) {
+    if (!mounted) return;
+
     setState(() {
       isOverlayHovered = true;
     });
   }
 
   void onOverlayExit(PointerExitEvent event) {
+    if (!mounted) return;
+
     setState(() {
       isOverlayHovered = false;
     });

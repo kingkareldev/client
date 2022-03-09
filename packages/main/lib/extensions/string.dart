@@ -4,6 +4,13 @@ extension StringExtension on String {
   }
 
   String toTitleCase() {
-    return replaceAll(RegExp(' +'), ' ').split(' ').map((str) => str.toCapitalized()).join(' ');
+    const List<String> nonTitleList = [
+      'to',
+      'the',
+    ];
+    return replaceAll(RegExp(' +'), ' ')
+        .split(' ')
+        .map((str) => nonTitleList.contains(str) ? str : str.toCapitalized())
+        .join(' ');
   }
 }

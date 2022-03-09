@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:main/components/default_screen_container.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:main/extensions/string.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key, required this.title}) : super(key: key);
@@ -14,10 +13,10 @@ class HomeScreen extends StatefulWidget {
 
 List<DropdownMenuItem<String>> get dropdownItems{
   List<DropdownMenuItem<String>> menuItems = [
-    DropdownMenuItem(child: Text("USA"),value: "USA"),
-    DropdownMenuItem(child: Text("Canada"),value: "Canada"),
-    DropdownMenuItem(child: Text("Brazil"),value: "Brazil"),
-    DropdownMenuItem(child: Text("England"),value: "England"),
+    const DropdownMenuItem(child: Text("USA"),value: "USA"),
+    const DropdownMenuItem(child: Text("Canada"),value: "Canada"),
+    const DropdownMenuItem(child: Text("Brazil"),value: "Brazil"),
+    const DropdownMenuItem(child: Text("England"),value: "England"),
   ];
   return menuItems;
 }
@@ -29,17 +28,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return DefaultScreenContainer(
       children: [
-        Align(
-          alignment: Alignment.topCenter,
+        Center(
           child: Padding(
             padding: const EdgeInsets.only(top: 40, bottom: 40, left: 15),
-            child: Text(
-              localization.appName,
-              style: Theme.of(context).textTheme.headline2,
+            child: Column(
+              children: [
+                Text(
+                  localization.appName,
+                  style: Theme.of(context).textTheme.headline2,
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+                Text(localization.appHomeDescription),
+              ],
             ),
           ),
         ),
-        Text("aaa"),
       ],
     );
   }

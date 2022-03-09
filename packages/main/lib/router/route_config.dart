@@ -10,8 +10,6 @@ class SignInRouteConfig extends RouteConfig {}
 
 class SignUpRouteConfig extends RouteConfig {}
 
-class SignOutRouteConfig extends RouteConfig {}
-
 // Play
 
 class StoriesRouteConfig extends RouteConfig {}

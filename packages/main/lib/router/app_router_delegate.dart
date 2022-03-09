@@ -52,10 +52,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfig>
       return routerBloc.add(ToSignUpRoute());
     }
 
-    if (configuration is SignOutRouteConfig) {
-      return routerBloc.add(ToSignOutRoute());
-    }
-
     // Play
 
     if (configuration is StoriesRouteConfig) {
@@ -146,10 +142,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfig>
       return SignUpRouteConfig();
     }
 
-    if (routerBloc.state is SignOutRoute) {
-      return SignOutRouteConfig();
-    }
-
     // Play
 
     if (routerBloc.state is StoriesRoute) {
@@ -222,7 +214,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfig>
 
   bool onPopPage(Route<dynamic> route, dynamic result) {
     if (!route.didPop(result)) return false;
-    print("router pop");
     routerBloc.add(ToHomeRoute());
     return true;
   }
@@ -251,7 +242,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfig>
 
               if (routerState is SignRoute)
                 MaterialPage(
-                  key: ValueKey('sign'),
+                  key: const ValueKey('sign'),
                   child: SignScreen(),
                 ),
 
