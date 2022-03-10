@@ -1,0 +1,41 @@
+name: king_karel_client
+description: A new Flutter project.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.16.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  business_contract:
+    path: packages/business_contract
+  business:
+    path: packages/business
+  data:
+    path: packages/data
+  presentation_contract:
+    path: packages/presentation_contract
+  presentation:
+    path: packages/presentation
+
+  bitsdojo_window: ^0.1.1+1
+  cupertino_icons: ^1.0.4
+  flutter_bloc: ^8.0.1
+  flutter_markdown: ^0.6.9
+  flutter_tabler_icons: ^1.1.1
+  get_it: ^7.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.4
+
+flutter:
+  uses-material-design: true
+  generate: true
