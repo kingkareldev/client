@@ -5,7 +5,7 @@ publish_to: 'none'
 
 environment:
   sdk: '>=2.16.0 <3.0.0'
-#  flutter: '>=2.10.0'
+  flutter: '>=2.10.0'
 
 dependencies:
   flutter:
@@ -19,12 +19,11 @@ dependencies:
     path: ../business_contract
 
   bitsdojo_window: ^0.1.1+1
-  get_it: ^7.2.0
-
   cupertino_icons: ^1.0.4
   flutter_bloc: ^8.0.1
   flutter_markdown: ^0.6.9
   flutter_tabler_icons: ^1.1.1
+  get_it: ^7.2.0
   intl: ^0.17.0
 
 dev_dependencies:

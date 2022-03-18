@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../components/menu.dart';
 import 'app_frame.dart';
+import 'menu.dart';
 
 class AppWindow extends StatelessWidget {
   final Widget child;

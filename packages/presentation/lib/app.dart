@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:presentation/settings/settings_controller.dart';
-import 'package:presentation/settings/settings_service.dart';
 import 'package:presentation_contract/app.dart';
 
 import 'king_karel.dart';
+import 'settings/settings_controller.dart';
+import 'settings/settings_service.dart';
 
 class AppImpl implements App {
   @override

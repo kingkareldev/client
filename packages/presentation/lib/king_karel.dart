@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:presentation/router/app_router_delegate.dart';
-import 'package:presentation/router/route_information_parser.dart';
-import 'package:presentation/router/router_bloc.dart';
-import 'package:presentation/settings/settings_controller.dart';
 
-import 'authentication/authentication_bloc.dart';
-import 'l10n/gen/app_localizations.dart';
+import 'authentication/blocs/authentication/authentication_bloc.dart';
+import 'core/l10n/gen/app_localizations.dart';
+import 'router/app_router_delegate.dart';
+import 'router/blocs/router/router_bloc.dart';
+import 'router/route_information_parser.dart';
+import 'settings/settings_controller.dart';
 
 class KingKarel extends StatefulWidget {
   final SettingsController settingsController;

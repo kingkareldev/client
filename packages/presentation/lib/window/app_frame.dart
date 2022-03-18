@@ -2,7 +2,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../l10n/gen/app_localizations.dart';
+import '../core/l10n/gen/app_localizations.dart';
 
 class AppFrame extends StatelessWidget {
   const AppFrame({Key? key}) : super(key: key);
@@ -37,7 +37,7 @@ class AppFrame extends StatelessWidget {
                 ),
               ),
             ),
-            const WindowButtons(),
+            const _WindowButtons(),
           ],
         ),
       ),
@@ -60,8 +60,8 @@ final closeButtonColors = WindowButtonColors(
   iconMouseOver: Colors.white,
 );
 
-class WindowButtons extends StatelessWidget {
-  const WindowButtons({Key? key}) : super(key: key);
+class _WindowButtons extends StatelessWidget {
+  const _WindowButtons({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

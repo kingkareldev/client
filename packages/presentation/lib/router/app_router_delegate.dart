@@ -2,19 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:presentation/router/route_config.dart';
-import 'package:presentation/router/router_bloc.dart';
 
-import '../screens/about_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/play_screen.dart';
-import '../screens/profile_screen.dart';
-import '../screens/settings_screen.dart';
-import '../screens/sign_screen.dart';
-import '../screens/stats_screen.dart';
-import '../screens/unknown_screen.dart';
+import '../about/screens/about_screen.dart';
+import '../authentication/screens/signin_screen.dart';
+import '../authentication/screens/signup_screen.dart';
+import '../home/screens/home_screen.dart';
+import '../mission/screens/mission_screen.dart';
+import '../profile/screens/profile_screen.dart';
+import '../settings/screens/settings_screen.dart';
+import '../stats/screens/stats_screen.dart';
+import '../stories/screen/stories_screen.dart';
+import '../story/screen/story_screen.dart';
+import '../unknown/screens/unknown_screen.dart';
 import '../window/app_window.dart';
+import 'blocs/router/router_bloc.dart';
 import 'no_animation_transition_delegate.dart';
+import 'route_config.dart';
 
 final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -240,22 +243,39 @@ class AppRouterDelegate extends RouterDelegate<RouteConfig>
 
               // Sign
 
-              if (routerState is SignRoute)
-                MaterialPage(
-                  key: const ValueKey('sign'),
-                  child: SignScreen(),
+              if (routerState is SignInRoute)
+                const MaterialPage(
+                  key: ValueKey('signin'),
+                  child: SignInScreen(),
+                ),
+
+              if (routerState is SignUpRoute)
+                const MaterialPage(
+                  key: ValueKey('signup'),
+                  child: SignUpScreen(),
                 ),
 
               // Play
 
-              if (routerState is PlayRoute)
+              if (routerState is StoriesRoute)
+                const MaterialPage(
+                  key: ValueKey('stories'),
+                  child: StoriesScreen(),
+                ),
+
+              if (routerState is StoryRoute)
                 MaterialPage(
-                  key: const ValueKey('play'),
-                  child: PlayScreen(),
+                  key: const ValueKey('story'),
+                  child: StoryScreen(id: routerState.id),
+                ),
+
+              if (routerState is MissionRoute)
+                MaterialPage(
+                  key: const ValueKey('mission'),
+                  child: MissionScreen(storyId: routerState.storyId, missionId: routerState.missionId),
                 ),
 
               // Other
-
 
               if (routerState is StatsRoute)
                 const MaterialPage(
