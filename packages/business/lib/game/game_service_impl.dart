@@ -1,24 +1,91 @@
 import 'dart:collection';
+import 'dart:convert';
 
-import 'package:business_contract/mission/game/entities/commands/group/if_command.dart';
-import 'package:business_contract/mission/game/entities/commands/group/root_command.dart';
-import 'package:business_contract/mission/game/entities/commands/group/while_command.dart';
-import 'package:business_contract/mission/game/entities/commands/group_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single/grab_mark_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single/move_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single/put_mark_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single_command.dart';
-import 'package:business_contract/mission/game/entities/common/condition.dart';
-import 'package:business_contract/mission/game/entities/common/direction.dart';
-import 'package:business_contract/mission/game/entities/game/game.dart';
-import 'package:business_contract/mission/game/entities/game/game_board.dart';
-import 'package:business_contract/mission/game/entities/game/game_cell.dart';
-import 'package:business_contract/mission/game/entities/game/robot_coords.dart';
-import 'package:business_contract/mission/game/services/game_service.dart';
-import 'package:business_contract/mission/game/services/game_service/process_game_error.dart';
-import 'package:business_contract/mission/game/services/game_service/process_game_result.dart';
+import 'package:business_contract/story/entities/commands/group/if_command.dart';
+import 'package:business_contract/story/entities/commands/group/root_command.dart';
+import 'package:business_contract/story/entities/commands/group/while_command.dart';
+import 'package:business_contract/story/entities/commands/group_command.dart';
+import 'package:business_contract/story/entities/commands/single/grab_mark_command.dart';
+import 'package:business_contract/story/entities/commands/single/move_command.dart';
+import 'package:business_contract/story/entities/commands/single/put_mark_command.dart';
+import 'package:business_contract/story/entities/commands/single_command.dart';
+import 'package:business_contract/story/entities/common/condition.dart';
+import 'package:business_contract/story/entities/common/direction.dart';
+import 'package:business_contract/story/entities/game/game.dart';
+import 'package:business_contract/story/entities/game/game_board.dart';
+import 'package:business_contract/story/entities/game/game_cell.dart';
+import 'package:business_contract/story/entities/game/robot_coords.dart';
+import 'package:business_contract/story/entities/mission/game_mission.dart';
+import 'package:business_contract/story/repositories/mission_repository.dart';
+import 'package:business_contract/story/services/game_service.dart';
+import 'package:business_contract/story/services/game_service/process_game_error.dart';
+import 'package:business_contract/story/services/game_service/process_game_result.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GameServiceImpl extends GameService {
+  final SharedPreferences storage;
+
+  GameServiceImpl({required this.storage, required MissionRepository missionRepository})
+      : super(missionRepository: missionRepository);
+
+  @override
+  Future<Game> parseGame(GameMission gameMission) {
+    final initialCommandsData = RootCommand.fromJson(jsonDecode(gameMission.commandsInitial));
+    final commandsData = RootCommand.fromJson(jsonDecode(gameMission.commands));
+
+    final initialBoardData = GameBoard.fromJson(jsonDecode(gameMission.boardInitial));
+    final resultBoardData = GameBoard.fromJson(jsonDecode(gameMission.boardResult));
+
+    final initialRobotData = Coords.fromJson(jsonDecode(gameMission.robotInitial));
+    final resultRobotData = Coords.fromJson(jsonDecode(gameMission.robotResult));
+
+    return Future.value(Game(
+      description: gameMission.description,
+      taskDescription: gameMission.taskDescription,
+      initialCommands: initialCommandsData,
+      commands: commandsData,
+      initialRobotCoords: initialRobotData,
+      resultRobotCoords: resultRobotData,
+      initialGrid: initialBoardData,
+      resultGrid: resultBoardData,
+      completed: gameMission.completed,
+      speedLimit: gameMission.speedLimit,
+      speed: gameMission.speed,
+      sizeLimit: gameMission.sizeLimit,
+      size: gameMission.size,
+    ));
+  }
+
+  @override
+  Future<bool> saveGame(Game game, String storyUlr, String gameUrl) async {
+    String? token = _getToken();
+    if (token == null) {
+      return Future.value(false);
+    }
+
+    String commandsJson = jsonEncode(game.commands);
+
+    bool success = await missionRepository.saveGame(
+      token,
+      storyUlr,
+      gameUrl,
+      commandsJson,
+      game.size ?? 0,
+      game.speed ?? 0,
+      game.completed,
+    );
+    if (!success) {
+      return Future.value(false);
+    }
+
+    return Future.value(true);
+  }
+
+  String? _getToken() {
+    String? token = storage.getString('jwt');
+    return token;
+  }
+
   @override
   Queue<ProcessGameResult> processGame(Game game) {
     _ProcessHolder holder = _ProcessHolder(game: game.clone(), size: game.commands.countSize());
@@ -35,6 +102,7 @@ class GameServiceImpl extends GameService {
     _processGroupCommand(
       processHolder: holder,
       command: holder.game.commands,
+      index: [],
     );
 
     if (holder.shouldFinish) {
@@ -59,6 +127,7 @@ class GameServiceImpl extends GameService {
   void _processGroupCommand({
     required _ProcessHolder processHolder,
     required GroupCommand command,
+    required List<int> index,
   }) {
     if (processHolder.shouldFinish) {
       return;
@@ -73,14 +142,21 @@ class GameServiceImpl extends GameService {
 
     // Process root command with no restriction.
     if (command is RootCommand) {
-      _processGroupChildren(processHolder: processHolder, command: command);
+      _processGroupChildren(processHolder: processHolder, command: command, index: index);
       return;
     }
 
     // Have to pass this section, or is returned.
     if (command is IfCommand) {
+      processHolder.queue.add(
+        ProcessGameResult(
+          game: processHolder.game,
+          commandIndex: index,
+        ),
+      );
+
       if (_processCondition(processHolder: processHolder, condition: command.condition)) {
-        _processGroupChildren(processHolder: processHolder, command: command);
+        _processGroupChildren(processHolder: processHolder, command: command, index: index);
       }
       return;
     }
@@ -88,13 +164,28 @@ class GameServiceImpl extends GameService {
     // Have to pass this section, or is returned.
     if (command is WhileCommand) {
       while (_processCondition(processHolder: processHolder, condition: command.condition)) {
+        processHolder.queue.add(
+          ProcessGameResult(
+            game: processHolder.game,
+            commandIndex: index,
+          ),
+        );
+
         // While loop has to have this check,
         // so the loop end properly.
         if (processHolder.shouldFinish) {
           return;
         }
-        _processGroupChildren(processHolder: processHolder, command: command);
+        _processGroupChildren(processHolder: processHolder, command: command, index: index);
       }
+
+      processHolder.queue.add(
+        ProcessGameResult(
+          game: processHolder.game,
+          commandIndex: index,
+        ),
+      );
+
       return;
     }
   }
@@ -102,14 +193,21 @@ class GameServiceImpl extends GameService {
   void _processGroupChildren({
     required _ProcessHolder processHolder,
     required GroupCommand command,
+    required List<int> index,
   }) {
+    int i = 0;
+
     for (final c in command.commands) {
+      final tmpIndex = List<int>.from(index);
+      tmpIndex.add(i);
+      i++;
+
       if (c is GroupCommand) {
-        _processGroupCommand(processHolder: processHolder, command: c);
+        _processGroupCommand(processHolder: processHolder, command: c, index: tmpIndex);
       }
 
       if (c is SingleCommand) {
-        _processSingleCommand(processHolder: processHolder, command: c);
+        _processSingleCommand(processHolder: processHolder, command: c, index: tmpIndex);
       }
     }
   }
@@ -117,6 +215,7 @@ class GameServiceImpl extends GameService {
   void _processSingleCommand({
     required _ProcessHolder processHolder,
     required SingleCommand command,
+    required List<int> index,
   }) {
     if (processHolder.shouldFinish) {
       return;
@@ -133,6 +232,17 @@ class GameServiceImpl extends GameService {
       // Direction is not null because all commands are valid at this point.
       final Coords moveCoords = processHolder.game.robotCoords.move(command.direction!);
 
+      processHolder.game = processHolder.game.copyWith(
+        robotCoords: moveCoords,
+      );
+
+      processHolder.queue.add(
+        ProcessGameResult(
+          game: processHolder.game,
+          commandIndex: index,
+        ),
+      );
+
       if (!_isWalkableCell(board: processHolder.game.grid, coords: moveCoords)) {
         processHolder
           ..shouldFinish = true
@@ -144,15 +254,6 @@ class GameServiceImpl extends GameService {
           );
         return;
       }
-
-      processHolder.game = processHolder.game.copyWith(
-        robotCoords: moveCoords,
-      );
-      processHolder.queue.add(
-        ProcessGameResult(
-          game: processHolder.game,
-        ),
-      );
       return;
     }
 
@@ -175,6 +276,7 @@ class GameServiceImpl extends GameService {
       processHolder.queue.add(
         ProcessGameResult(
           game: processHolder.game,
+          commandIndex: index,
         ),
       );
       return;
@@ -199,6 +301,7 @@ class GameServiceImpl extends GameService {
       processHolder.queue.add(
         ProcessGameResult(
           game: processHolder.game,
+          commandIndex: index,
         ),
       );
       return;

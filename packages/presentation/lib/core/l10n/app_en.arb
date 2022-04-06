@@ -11,6 +11,11 @@
     "description": "The title of the application"
   },
 
+  "loadingText": "loading...",
+  "@loadingText": {
+    "description": "The description of the loading text"
+  },
+
   "appHomeDescription": "King Karel is an educational game with programming puzzles. The game aims at children and other beginners, who will playfully learn the concepts of programming and algorithms.",
   "@appHomeDescription": {
     "description": "The description on main screen of the application"
@@ -81,6 +86,10 @@
   "gameResetButton": "reset grid",
   "@gameResetButton": {
     "description": "The description of the button to reset a game grid."
+  },
+  "gameStopButton": "stop game",
+  "@gameStopButton": {
+    "description": "The description of the button to stop a game in progress."
   },
   "gameRunButton": "run game",
   "@gameRunButton": {

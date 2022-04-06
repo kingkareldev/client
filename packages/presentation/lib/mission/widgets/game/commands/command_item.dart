@@ -82,7 +82,7 @@ class _CommandItemState extends State<CommandItem> {
       //opacity = key == _commandsState?.dragging ? (_commandsState?.willRemove ?? false ? 0.1 : 0.4) : 1;
     }
 
-    final Widget content = _buildContent();
+    final Widget content = _buildContent(context);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -93,7 +93,9 @@ class _CommandItemState extends State<CommandItem> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
+    final GameBloc gameBloc = BlocProvider.of<GameBloc>(context);
+
     if (widget.command is GroupCommand) {
       return IntrinsicWidth(
         child: Column(
@@ -102,6 +104,7 @@ class _CommandItemState extends State<CommandItem> {
             Container(
               alignment: Alignment.centerLeft,
               child: CommandBlock(
+                isRunningActive: _compareLists((gameBloc.state as GameInProgress).commandIndex, widget.index),
                 name: widget.command.name,
                 color: widget.command.color,
                 onPointerDown: _processPointer,
@@ -118,6 +121,7 @@ class _CommandItemState extends State<CommandItem> {
       );
     } else if (widget.command is SingleCommand) {
       return CommandBlock(
+        isRunningActive: _compareLists((gameBloc.state as GameInProgress).commandIndex, widget.index),
         name: widget.command.name,
         color: widget.command.color,
         onPointerDown: _processPointer,
@@ -128,6 +132,22 @@ class _CommandItemState extends State<CommandItem> {
 
     return Container();
   }
+
+  bool _compareLists(List<int>? first, List<int>? second) {
+    if (first == null || second == null) {
+      return false;
+    }
+
+    if (first.length != second.length) {
+      return false;
+    }
+
+    for (var i = 0; i < first.length; i++) {
+      if (first[i] != second[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
-
-

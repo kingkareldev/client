@@ -1,12 +1,12 @@
 import 'dart:collection';
 
 import 'package:bloc/bloc.dart';
-import 'package:business_contract/mission/game/entities/commands/group/root_command.dart';
-import 'package:business_contract/mission/game/entities/game/game.dart';
-import 'package:business_contract/mission/game/repositories/mission_repository.dart';
-import 'package:business_contract/mission/game/services/game_service.dart';
-import 'package:business_contract/mission/game/services/game_service/process_game_error.dart';
-import 'package:business_contract/mission/game/services/game_service/process_game_result.dart';
+import 'package:business_contract/story/entities/commands/group/root_command.dart';
+import 'package:business_contract/story/entities/game/game.dart';
+import 'package:business_contract/story/entities/mission/game_mission.dart';
+import 'package:business_contract/story/services/game_service.dart';
+import 'package:business_contract/story/services/game_service/process_game_error.dart';
+import 'package:business_contract/story/services/game_service/process_game_result.dart';
 import 'package:meta/meta.dart';
 
 part 'game_event.dart';
@@ -14,18 +14,20 @@ part 'game_event.dart';
 part 'game_state.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
-  final MissionRepository _repository;
   final GameService _service;
 
   static const int timeDelay = 600;
 
-  GameBloc({required MissionRepository repository, required GameService service})
-      : _repository = repository,
-        _service = service,
+  GameBloc({required GameService service})
+      : _service = service,
         super(MissionInitial()) {
     on<LoadGame>((event, emit) async {
-      // _repository.loadGame(); TODO
-      emit(GameInProgress(game: await _repository.getGame()));
+      Game game = await _service.parseGame(event.gameMission);
+      emit(GameInProgress(
+        storyUrl: event.storyUrl,
+        missionUrl: event.missionUrl,
+        game: game,
+      ));
     });
 
     on<SaveGame>((event, emit) {
@@ -33,7 +35,15 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         return;
       }
 
-      // _repository.saveGame(); TODO
+      Queue<ProcessGameResult> gameQueue =
+          _service.processGame((state as GameInProgress).game.copyWith(commands: event.commands));
+
+      ProcessGameResult last = gameQueue.removeLast();
+
+      final gameState = state as GameInProgress;
+
+      _service.saveGame(last.game, gameState.storyUrl, gameState.missionUrl);
+
       emit(
         (state as GameInProgress).copyWith(
           game: (state as GameInProgress).game.copyWith(
@@ -43,6 +53,16 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
     });
 
+    on<StopGame>((event, emit) {
+      if (state is! GameInProgress) {
+        return;
+      }
+
+      emit((state as GameInProgress).copyWith(
+        isRunning: false,
+        showDialog: false,
+      ));
+    });
     on<RunGame>((event, emit) async {
       if (state is! GameInProgress) {
         return;
@@ -73,19 +93,23 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       }
 
       // Extract last result -- that should contain the final state or error.
-      ProcessGameResult last = gameQueue.removeLast();
+      ProcessGameResult last = gameQueue.last;
 
       // On exceeding speed limit,
       // finish without the game animation and show the error dialog immediately.
-      if (last.error == ProcessGameError.exceededSpeedLimit) {
-        runGameState = runGameState.copyWith(
-          isRunning: false,
-          showDialog: true,
-          gameResultError: last.error,
-        );
-        emit(runGameState);
-        return;
-      }
+      // if (last.error == ProcessGameError.exceededSpeedLimit) {
+      //   runGameState = runGameState.copyWith(
+      //     isRunning: false,
+      //     showDialog: true,
+      //     gameResultError: last.error,
+      //   );
+      //
+      //   if (!(state as GameInProgress).isRunning) {
+      //     return;
+      //   }
+      //   emit(runGameState);
+      //   return;
+      // }
 
       // Step by step process the game queue.
       for (var step in gameQueue) {
@@ -94,10 +118,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         if (step.error != null) {
           runGameState = runGameState.copyWith(
             game: step.game,
-            gameResultError: last.error,
+            gameResultError: step.error,
             isRunning: false,
             showDialog: true,
           );
+          if (!(state as GameInProgress).isRunning) {
+            return;
+          }
           emit(runGameState);
           return;
         }
@@ -105,7 +132,11 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         runGameState = runGameState.copyWith(
           game: step.game,
           gameResultError: last.error,
+          commandIndex: step.commandIndex,
         );
+        if (!(state as GameInProgress).isRunning) {
+          return;
+        }
         emit(runGameState);
       }
 
@@ -120,6 +151,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
           showDialog: true,
           gameResultError: last.error,
         );
+        if (!(state as GameInProgress).isRunning) {
+          return;
+        }
         emit(runGameState);
         return;
       }
@@ -130,7 +164,13 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         isRunning: false,
         showDialog: true,
       );
+      if (!(state as GameInProgress).isRunning) {
+        return;
+      }
       emit(runGameState);
+
+      final gameState = state as GameInProgress;
+      _service.saveGame(runGameState.game, gameState.storyUrl, gameState.missionUrl);
 
       return;
     });

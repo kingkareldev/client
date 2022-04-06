@@ -130,13 +130,6 @@ class Footer extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: InlineHoverButton(
-                  onPressed: () => authBloc.add(Authenticate()),
-                  child: const Text('authenticate'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: InlineHoverButton(
                   onPressed: () => authBloc.add(RemoveAuthentication()),
                   child: const Text('unauthenticate'),
                 ),

@@ -1,8 +1,13 @@
+import 'package:business_contract/story/entities/mission/game_mission.dart';
+import 'package:business_contract/story/entities/mission/learning_mission.dart';
+import 'package:business_contract/story/services/story_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
-import '../../core/extensions/iterable.dart';
-import '../../model/mission.dart';
-import '../../model/story.dart';
+import '../../core/l10n/gen/app_localizations.dart';
+import '../../router/blocs/router/router_bloc.dart';
+import '../blocs/mission/mission_bloc.dart';
 import 'parts/game.dart';
 import 'parts/learning.dart';
 import 'parts/story.dart';
@@ -18,35 +23,38 @@ class MissionScreen extends StatefulWidget {
 }
 
 class _MissionScreenState extends State<MissionScreen> {
-  Story? story;
-  Mission? mission;
-
-  @override
-  void initState() {
-    // TODO probably only pass the IDs
-    story = storiesDataTmp.firstWhereOrNull((element) => element.id == widget.storyId);
-    mission = story?.missions.firstWhereOrNull((element) => element.id == widget.missionId);
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (mission is GameMission) {
-      return GameScreenPart(story: story!, mission: mission as GameMission);
-    }
+    final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
 
-    if (mission is LearningMission) {
-      return LearningScreenPart(story: story!, mission: mission as LearningMission);
-    }
+    return BlocProvider(
+      create: (context) =>
+      MissionBloc(storyService: GetIt.I<StoryService>(), routerBloc: routerBloc)
+        ..add(Load(storyUrl: widget.storyId, missionUrl: widget.missionId)),
+      child: BlocBuilder<MissionBloc, MissionState>(
+        builder: (context, state) {
+          if (state is MissionLoaded) {
+            if (state.mission is GameMission) {
+              return GameScreenPart(storyUrl: widget.storyId, mission: state.mission as GameMission);
+            }
 
-    if (mission is StoryMission) {
-      return StoryScreenPart(story: story!, mission: mission as StoryMission);
-    }
+            if (state.mission is LearningMission && !(state.mission as LearningMission).isStory) {
+              return LearningScreenPart(storyUrl: widget.storyId, mission: state.mission as LearningMission);
+            }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100),
-      child: const Center(
-        child: Text("neznámé"),
+            if (state.mission is LearningMission && (state.mission as LearningMission).isStory) {
+              return StoryScreenPart(storyUrl: widget.storyId, mission: state.mission as LearningMission);
+            }
+          }
+
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 100),
+            child: Center(
+              child: Text(localization.loadingText),
+            ),
+          );
+        },
       ),
     );
   }

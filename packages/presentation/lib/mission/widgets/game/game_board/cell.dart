@@ -1,4 +1,4 @@
-import 'package:business_contract/mission/game/entities/game/game_cell.dart';
+import 'package:business_contract/story/entities/game/game_cell.dart';
 import 'package:flutter/material.dart';
 
 class Cell extends StatelessWidget {

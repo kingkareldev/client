@@ -1,6 +1,8 @@
+import 'package:business_contract/user/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get_it/get_it.dart';
 
 import 'authentication/blocs/authentication/authentication_bloc.dart';
 import 'core/l10n/gen/app_localizations.dart';
@@ -25,7 +27,9 @@ class _KingKarelState extends State<KingKarel> {
 
   @override
   void initState() {
-    _authenticationBloc = AuthenticationBloc();
+    _authenticationBloc = AuthenticationBloc(
+      authService: GetIt.I<AuthService>()
+    );
     _routerBloc = RouterBloc(authBloc: _authenticationBloc);
     super.initState();
   }
@@ -33,9 +37,25 @@ class _KingKarelState extends State<KingKarel> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => _authenticationBloc,
+      create: (_) => _authenticationBloc..add(RestoreAuthentication()),
       child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
+          if (state is Loading) {
+            return Directionality(
+              textDirection: TextDirection.ltr,
+              child: MediaQuery.fromWindow(
+                child: Scaffold(
+                  body: Container(
+                    color: Colors.white,
+                    child: const Center(
+                      child: Text("loading..."),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+
           return BlocProvider<RouterBloc>(
             create: (_) => _routerBloc,
             child: Builder(

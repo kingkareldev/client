@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../authentication/blocs/authentication/authentication_bloc.dart';
 import '../../core/l10n/gen/app_localizations.dart';
 import '../../core/widgets/default_screen_container.dart';
-import '../../model/user.dart';
 import '../../router/blocs/router/router_bloc.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -12,13 +12,6 @@ class ProfileScreen extends StatefulWidget {
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
-
-User user = User(
-  username: 'tenhobi',
-  realName: 'Honza Bittner',
-  email: 'mail@tenhobi.dev',
-  description: 'Student at FIT CTU',
-);
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
@@ -44,18 +37,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(color: Colors.greenAccent.shade100, shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 50),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user.username,
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                        Text(user.realName),
-                        Text(user.email),
-                        const SizedBox(height: 50),
-                        Text(user.description),
-                      ],
+                    BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                      builder: (context, state) {
+                        if (state is! Authenticated) {
+                          return const Center(
+                            child: Text("no data"),
+                          );
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              state.user.username,
+                              style: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .headline4,
+                            ),
+                            Text(state.user.name),
+                            Text(state.user.email),
+                            const SizedBox(height: 50),
+                            Text(state.user.description),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),

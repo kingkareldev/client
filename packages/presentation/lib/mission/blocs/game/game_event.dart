@@ -3,10 +3,16 @@ part of 'game_bloc.dart';
 @immutable
 abstract class GameEvent {}
 
-class LoadGame extends GameEvent {}
+class LoadGame extends GameEvent {
+  final String storyUrl;
+  final String missionUrl;
+  final GameMission gameMission;
+
+  LoadGame({required this.storyUrl, required this.missionUrl, required this.gameMission});
+}
 
 class SaveGame extends GameEvent {
-  final RootCommand? commands;
+  final RootCommand commands;
 
   SaveGame({required this.commands});
 }
@@ -16,6 +22,8 @@ class RunGame extends GameEvent {
 
   RunGame({required this.commands});
 }
+
+class StopGame extends GameEvent {}
 
 class ResetGrid extends GameEvent {}
 

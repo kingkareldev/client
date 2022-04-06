@@ -26,9 +26,13 @@ dependencies:
   bitsdojo_window: ^0.1.1+1
   cupertino_icons: ^1.0.4
   flutter_bloc: ^8.0.1
-  flutter_markdown: ^0.6.9
+  flutter_markdown: ^0.6.9+1
   flutter_tabler_icons: ^1.1.1
+
   get_it: ^7.2.0
+  shared_preferences: ^2.0.13
+  http: ^0.13.4
+  flutter_dotenv: ^5.0.2
 
 dev_dependencies:
   flutter_test:
@@ -39,3 +43,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  assets:
+    - king_karel.env

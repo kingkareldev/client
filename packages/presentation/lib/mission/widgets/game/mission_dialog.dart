@@ -1,4 +1,4 @@
-import 'package:business_contract/mission/game/services/game_service/process_game_error.dart';
+import 'package:business_contract/story/services/game_service/process_game_error.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:presentation/core/utils/process_game_error.dart';

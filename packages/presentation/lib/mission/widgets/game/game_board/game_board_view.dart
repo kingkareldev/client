@@ -1,5 +1,5 @@
-import 'package:business_contract/mission/game/entities/game/game_board.dart';
-import 'package:business_contract/mission/game/entities/game/robot_coords.dart';
+import 'package:business_contract/story/entities/game/game_board.dart';
+import 'package:business_contract/story/entities/game/robot_coords.dart';
 import 'package:flutter/material.dart';
 
 import 'cell.dart';

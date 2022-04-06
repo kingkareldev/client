@@ -1,5 +1,7 @@
+import 'package:business_contract/user/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../authentication/blocs/authentication/authentication_bloc.dart';
 import '../../core/extensions/string.dart';
@@ -42,7 +44,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 BlocProvider(
                   create: (context) {
                     final AuthenticationBloc authBloc = BlocProvider.of<AuthenticationBloc>(context);
-                    return _signInBloc = SignInBloc(authBloc: authBloc);
+                    return _signInBloc = SignInBloc(authBloc: authBloc, authService: GetIt.I<AuthService>());
                   },
                   child: BlocBuilder<SignInBloc, SignInState>(
                     builder: (context, state) {
@@ -64,6 +66,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                     onChanged: (String value) {
                                       _username = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
+                                    autofocus: true,
                                     decoration: InputDecoration(labelText: localization.formUsernameLabel),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -78,8 +82,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                     onChanged: (String value) {
                                       _password = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
                                     decoration: InputDecoration(labelText: localization.formPasswordLabel),
-                                    autofocus: true,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return localization.formFieldValidatorEmptyText;
@@ -90,11 +94,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                   const SizedBox(height: 20),
                                   if (state is! SignInSuccess)
                                     ElevatedButton(
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          _signInBloc.add(SignIn(username: _username, password: _password));
-                                        }
-                                      },
+                                      onPressed: _onSubmit,
                                       child: const Text('Submit'),
                                     ),
                                 ],
@@ -112,5 +112,11 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ],
     );
+  }
+
+  void _onSubmit() {
+    if (_formKey.currentState!.validate()) {
+      _signInBloc.add(SignIn(username: _username, password: _password));
+    }
   }
 }

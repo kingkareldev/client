@@ -1,6 +1,6 @@
-import 'package:business_contract/mission/game/entities/commands/group/root_command.dart';
-import 'package:business_contract/mission/game/repositories/mission_repository.dart';
-import 'package:business_contract/mission/game/services/game_service.dart';
+import 'package:business_contract/story/entities/commands/group/root_command.dart';
+import 'package:business_contract/story/entities/mission/game_mission.dart';
+import 'package:business_contract/story/services/game_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -8,8 +8,6 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:get_it/get_it.dart';
 import 'package:presentation/core/extensions/string.dart';
 
-import '../../../../model/mission.dart';
-import '../../../../model/story.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../router/blocs/router/router_bloc.dart';
 import '../../blocs/game/game_bloc.dart';
@@ -20,9 +18,9 @@ import '../../widgets/game/mission_dialog.dart';
 
 class GameScreenPart extends StatefulWidget {
   final GameMission mission;
-  final Story story;
+  final String storyUrl;
 
-  const GameScreenPart({required this.story, required this.mission, Key? key}) : super(key: key);
+  const GameScreenPart({required this.storyUrl, required this.mission, Key? key}) : super(key: key);
 
   @override
   State<GameScreenPart> createState() => _GameScreenPartState();
@@ -42,15 +40,8 @@ class _GameScreenPartState extends State<GameScreenPart> {
     _commandsViewController = CommandsViewController();
 
     _gameBloc = GameBloc(
-      repository: GetIt.I<MissionRepository>(),
       service: GetIt.I<GameService>(),
     );
-    _gameBloc.stream.forEach((gameState) {
-      if (gameState is GameInProgress) {
-        setState(() {});
-      }
-    });
-    _gameBloc.add(LoadGame());
 
     super.initState();
   }
@@ -60,28 +51,34 @@ class _GameScreenPartState extends State<GameScreenPart> {
     final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
     final AppLocalizations localization = AppLocalizations.of(context)!;
 
+    final event = LoadGame(
+      storyUrl: widget.storyUrl,
+      missionUrl: widget.mission.url,
+      gameMission: widget.mission,
+    );
+
     return BlocProvider(
-      create: (context) => _gameBloc,
-      child: BlocListener<GameBloc, GameState>(
+      create: (context) => _gameBloc..add(event),
+      child: BlocConsumer<GameBloc, GameState>(
         listener: (context, state) {
           if (state is GameInProgress && _tmpCommands == null) {
             _tmpCommands = state.game.commands.clone();
           }
         },
-        child: BlocBuilder<GameBloc, GameState>(
-          bloc: _gameBloc,
-          builder: (context, missionState) {
-            return Stack(
-              children: [
-                if (missionState is GameInProgress)
-                  Row(
-                    children: [
-                      Container(
-                        width: leftSideWidth,
-                        color: Theme.of(context).splashColor,
-                        child: Column(
-                          children: [
-                            Expanded(
+        builder: (context, state) {
+          return Stack(
+            children: [
+              if (state is GameInProgress)
+                Row(
+                  children: [
+                    Container(
+                      width: leftSideWidth,
+                      color: Theme.of(context).splashColor,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: IgnorePointer(
+                              ignoring: state.isRunning,
                               child: Stack(
                                 fit: StackFit.passthrough,
                                 children: [
@@ -90,9 +87,8 @@ class _GameScreenPartState extends State<GameScreenPart> {
                                     controller: _commandsViewController,
                                     onSave: _onSave,
                                     onRun: _onRun,
-                                    onReset: _onReset,
                                   ),
-                                  if (missionState.showDescription)
+                                  if (state.showDescription)
                                     Container(
                                       alignment: Alignment.topLeft,
                                       color: Colors.white,
@@ -107,33 +103,36 @@ class _GameScreenPartState extends State<GameScreenPart> {
                                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                                             ),
                                           ),
-                                          MarkdownBody(data: missionState.game.description),
+                                          MarkdownBody(data: state.game.taskDescription),
                                         ],
                                       ),
                                     ),
                                 ],
                               ),
                             ),
-                            Container(
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.all(8),
-                              color: Colors.amberAccent.shade200,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(8),
+                            color: Colors.amberAccent.shade200,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (!state.isRunning) ...[
                                   IconButton(
                                     onPressed: () => _onDescription(),
                                     icon: const Icon(
                                       TablerIcons.book,
                                       color: Colors.black87,
                                     ),
-                                    tooltip: missionState.showDescription
+                                    tooltip: state.showDescription
                                         ? localization.gameHideDescriptionButton
                                         : localization.gameShowDescriptionButton,
                                   ),
                                   Expanded(child: Container()),
                                   IconButton(
-                                    onPressed: () => _commandsViewController.reset(),
+                                    onPressed: _onReset,
                                     icon: const Icon(
                                       TablerIcons.repeat,
                                       color: Colors.black87,
@@ -158,61 +157,84 @@ class _GameScreenPartState extends State<GameScreenPart> {
                                     ),
                                     tooltip: localization.gameRunButton,
                                   ),
+                                ] else ...[
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    color: Colors.black87,
+                                    child: Text(
+                                      localization.gameRunningDescription,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    color: Colors.white,
+                                    alignment: Alignment.center,
+                                    child: IconButton(
+                                      onPressed: _onStop,
+                                      icon: const Icon(
+                                        TablerIcons.player_stop,
+                                        color: Colors.red,
+                                      ),
+                                      tooltip: localization.gameStopButton,
+                                    ),
+                                  ),
                                 ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: GameBoardView(
-                          gameBoard: missionState.game.grid,
-                          robotCoords: missionState.game.robotCoords,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (missionState is GameInProgress && missionState.isRunning)
-                  Container(
-                    color: Colors.black87.withOpacity(0.5),
-                    width: leftSideWidth,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          color: Colors.black87,
-                          child: Text(
-                            localization.gameRunningDescription,
-                            style: const TextStyle(
-                              color: Colors.white,
+                              ],
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                if (missionState is GameInProgress && missionState.showDialog)
-                  MissionDialog(
-                    name: widget.mission.name,
-                    size: missionState.game.size,
-                    sizeLimit: missionState.game.sizeLimit,
-                    speed: missionState.game.speed,
-                    speedLimit: missionState.game.speedLimit,
-                    isCompleted: missionState.game.isCompleted(),
-                    gameResultError: missionState.gameResultError,
-                    onToStory: () {
-                      routerBloc.add(ToStoryRoute(widget.story.id));
-                    },
-                    onTryAgain: () {
-                      _gameBloc.add(HideDialog());
-                    },
-                  ),
-              ],
-            );
-          },
-        ),
+                    Expanded(
+                      child: GameBoardView(
+                        gameBoard: state.game.grid,
+                        robotCoords: state.game.robotCoords,
+                      ),
+                    ),
+                  ],
+                ),
+              // if (state is GameInProgress && state.isRunning)
+              //   Container(
+              //     color: Colors.black87.withOpacity(0.1),
+              //     width: leftSideWidth,
+              //     child: Column(
+              //       mainAxisSize: MainAxisSize.max,
+              //       mainAxisAlignment: MainAxisAlignment.center,
+              //       children: [
+              //         Container(
+              //           padding: const EdgeInsets.all(10),
+              //           color: Colors.black87,
+              //           child: Text(
+              //             localization.gameRunningDescription,
+              //             style: const TextStyle(
+              //               color: Colors.white,
+              //             ),
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              if (state is GameInProgress && state.showDialog)
+                MissionDialog(
+                  name: widget.mission.name,
+                  size: state.game.size,
+                  sizeLimit: state.game.sizeLimit,
+                  speed: state.game.speed,
+                  speedLimit: state.game.speedLimit,
+                  isCompleted: state.game.isCompleted(),
+                  gameResultError: state.gameResultError,
+                  onToStory: () {
+                    routerBloc.add(ToStoryRoute(widget.storyUrl));
+                  },
+                  onTryAgain: () {
+                    _gameBloc.add(HideDialog());
+                  },
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -235,9 +257,10 @@ class _GameScreenPartState extends State<GameScreenPart> {
   }
 
   void _onSave(RootCommand commands) {
+    print("______ save: " + commands.toString());
     _gameBloc.add(
       SaveGame(
-        commands: commands.clone(),
+        commands: commands,
       ),
     );
   }
@@ -245,7 +268,7 @@ class _GameScreenPartState extends State<GameScreenPart> {
   void _onRun(RootCommand commands) {
     _gameBloc.add(
       RunGame(
-        commands: commands.clone(),
+        commands: commands,
       ),
     );
   }
@@ -253,6 +276,12 @@ class _GameScreenPartState extends State<GameScreenPart> {
   void _onReset() {
     _gameBloc.add(
       ResetGrid(),
+    );
+  }
+
+  void _onStop() {
+    _gameBloc.add(
+      StopGame(),
     );
   }
 }

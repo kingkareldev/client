@@ -1,20 +1,22 @@
 import 'dart:collection';
 
-import 'package:business_contract/mission/game/entities/commands/command.dart';
-import 'package:business_contract/mission/game/entities/commands/group/root_command.dart';
-import 'package:business_contract/mission/game/entities/commands/group/if_command.dart';
-import 'package:business_contract/mission/game/entities/commands/group/while_command.dart';
-import 'package:business_contract/mission/game/entities/commands/group_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single/move_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single/grab_mark_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single/put_mark_command.dart';
-import 'package:business_contract/mission/game/entities/commands/single_command.dart';
+import 'package:business_contract/story/entities/commands/command.dart';
+import 'package:business_contract/story/entities/commands/group/root_command.dart';
+import 'package:business_contract/story/entities/commands/group/if_command.dart';
+import 'package:business_contract/story/entities/commands/group/while_command.dart';
+import 'package:business_contract/story/entities/commands/group_command.dart';
+import 'package:business_contract/story/entities/commands/single/move_command.dart';
+import 'package:business_contract/story/entities/commands/single/grab_mark_command.dart';
+import 'package:business_contract/story/entities/commands/single/put_mark_command.dart';
+import 'package:business_contract/story/entities/commands/single_command.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/extensions/string.dart';
 import '../../../../core/l10n/gen/app_localizations.dart';
+import '../../../blocs/game/game_bloc.dart';
 import 'command_block.dart';
 import 'commands_view_controller.dart';
 
@@ -29,14 +31,12 @@ class CommandsView extends StatefulWidget {
   final CommandsViewController controller;
   final void Function(RootCommand) onSave;
   final void Function(RootCommand) onRun;
-  final void Function() onReset;
 
   const CommandsView({
     required this.gameCommands,
     required this.controller,
     required this.onSave,
     required this.onRun,
-    required this.onReset,
     Key? key,
   }) : super(key: key);
 
@@ -75,14 +75,11 @@ class _CommandsViewState extends State<CommandsView> {
   void initState() {
     widget.controller.addListener(() {
       switch (widget.controller.type) {
-        case NotifyEventType.run:
-          widget.onRun(gameCommands);
-          break;
         case NotifyEventType.save:
-          widget.onSave(gameCommands);
+          widget.onSave(gameCommands.clone());
           break;
-        case NotifyEventType.reset:
-          widget.onReset();
+        case NotifyEventType.run:
+          widget.onRun(gameCommands.clone());
           break;
       }
     });
@@ -94,6 +91,7 @@ class _CommandsViewState extends State<CommandsView> {
       IfCommand(commands: []),
       WhileCommand(commands: []),
     ];
+
     super.initState();
   }
 

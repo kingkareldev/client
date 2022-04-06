@@ -1,5 +1,7 @@
+import 'package:business_contract/user/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../authentication/blocs/authentication/authentication_bloc.dart';
 import '../../core/extensions/string.dart';
@@ -45,7 +47,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 BlocProvider(
                   create: (context) {
                     final AuthenticationBloc authBloc = BlocProvider.of<AuthenticationBloc>(context);
-                    return _signInBloc = SignUpBloc(authBloc: authBloc);
+                    return _signInBloc = SignUpBloc(authBloc: authBloc, authService: GetIt.I<AuthService>());
                   },
                   child: BlocBuilder<SignUpBloc, SignUpState>(
                     builder: (context, state) {
@@ -67,6 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onChanged: (String value) {
                                       _username = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
                                     decoration: InputDecoration(labelText: localization.formUsernameLabel),
                                     autofocus: true,
                                     validator: (value) {
@@ -81,6 +84,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onChanged: (String value) {
                                       _password = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
                                     decoration: InputDecoration(labelText: localization.formPasswordLabel),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -90,11 +94,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     },
                                   ),
                                   TextFormField(
-                                    obscureText: true,
                                     initialValue: _realName,
                                     onChanged: (String value) {
                                       _realName = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
                                     decoration: InputDecoration(labelText: localization.formRealNameLabel),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -108,6 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onChanged: (String value) {
                                       _email = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
                                     decoration: InputDecoration(labelText: localization.formEmailLabel),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -117,11 +122,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     },
                                   ),
                                   TextFormField(
-                                    obscureText: true,
                                     initialValue: _description,
                                     onChanged: (String value) {
                                       _description = value;
                                     },
+                                    onFieldSubmitted: (_) => _onSubmit(),
                                     decoration: InputDecoration(labelText: localization.formDescriptionLabel),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -133,16 +138,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   const SizedBox(height: 20),
                                   if (state is! SignUpSuccess)
                                     ElevatedButton(
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          _signInBloc.add(SignUp(
-                                              username: _username,
-                                              password: _password,
-                                              realName: _realName,
-                                              email: _email,
-                                              description: _description));
-                                        }
-                                      },
+                                      onPressed: _onSubmit,
                                       child: const Text('Submit'),
                                     ),
                                 ],
@@ -160,5 +156,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ],
     );
+  }
+
+  void _onSubmit() {
+    if (_formKey.currentState!.validate()) {
+      _signInBloc.add(SignUp(
+        username: _username,
+        password: _password,
+        realName: _realName,
+        email: _email,
+        description: _description,
+      ));
+    }
   }
 }

@@ -233,7 +233,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfig>
             pages: [
               const MaterialPage(
                 key: ValueKey('home'),
-                child: HomeScreen(title: 'Home Page toto je'),
+                child: HomeScreen(),
               ),
               if (routerState is UnknownRoute)
                 const MaterialPage(

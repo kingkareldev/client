@@ -1,7 +1,8 @@
+import 'package:business_contract/story/entities/mission/game_mission.dart';
+import 'package:business_contract/story/entities/mission/learning_mission.dart';
+import 'package:business_contract/story/entities/mission/mission.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
-
-import '../../model/mission.dart';
 
 class MissionItem extends StatefulWidget {
   final Mission mission;
@@ -26,7 +27,9 @@ class _MissionItemState extends State<MissionItem> {
   IconData getMissionIcon() {
     if (widget.mission is GameMission) {
       return TablerIcons.sailboat;
-    } else if (widget.mission is StoryMission) {
+    }
+
+    if (widget.mission is LearningMission && (widget.mission as LearningMission).isStory) {
       return TablerIcons.book;
     }
 

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 enum NotifyEventType {
   save,
   run,
-  reset,
 }
 
 class CommandsViewController extends ChangeNotifier {
@@ -16,11 +15,6 @@ class CommandsViewController extends ChangeNotifier {
 
   void run() {
     type = NotifyEventType.run;
-    notifyListeners();
-  }
-
-  void reset() {
-    type = NotifyEventType.reset;
     notifyListeners();
   }
 }

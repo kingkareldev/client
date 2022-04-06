@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'King Karel'**
   String get appTitle;
 
+  /// The description of the loading text
+  ///
+  /// In en, this message translates to:
+  /// **'loading...'**
+  String get loadingText;
+
   /// The description on main screen of the application
   ///
   /// In en, this message translates to:
@@ -193,6 +199,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'reset grid'**
   String get gameResetButton;
+
+  /// The description of the button to stop a game in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'stop game'**
+  String get gameStopButton;
 
   /// The description of the button to run a game.
   ///

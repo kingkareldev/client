@@ -115,6 +115,10 @@ class RouterBloc extends Bloc<RouterEvent, RouterState> {
       return;
     }
 
+    if (authState is Unauthenticated && authState.isRestored) {
+      return;
+    }
+
     add(ToHomeRoute());
   }
 }

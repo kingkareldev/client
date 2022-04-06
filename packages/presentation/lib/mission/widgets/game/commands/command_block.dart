@@ -1,9 +1,10 @@
-import 'package:business_contract/mission/game/entities/commands/command.dart';
-import 'package:business_contract/mission/game/entities/commands/condition_command.dart';
-import 'package:business_contract/mission/game/entities/commands/direction_command.dart';
-import 'package:business_contract/mission/game/entities/common/condition.dart';
-import 'package:business_contract/mission/game/entities/common/direction.dart';
+import 'package:business_contract/story/entities/commands/command.dart';
+import 'package:business_contract/story/entities/commands/condition_command.dart';
+import 'package:business_contract/story/entities/commands/direction_command.dart';
+import 'package:business_contract/story/entities/common/condition.dart';
+import 'package:business_contract/story/entities/common/direction.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 import 'package:presentation/core/utils/direction.dart';
 import 'package:presentation/core/widgets/overlay_button.dart';
 
@@ -11,6 +12,7 @@ import '../../../../core/l10n/gen/app_localizations.dart';
 import '../../../../core/utils/condition.dart';
 
 class CommandBlock extends StatelessWidget {
+  final bool isRunningActive;
   final int color;
   final String name;
   final void Function(BuildContext, PointerDownEvent) onPointerDown;
@@ -18,6 +20,7 @@ class CommandBlock extends StatelessWidget {
   final bool isPalette;
 
   const CommandBlock({
+    this.isRunningActive = false,
     required this.color,
     required this.name,
     required this.onPointerDown,
@@ -28,30 +31,37 @@ class CommandBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.grab,
-      child: Listener(
-        onPointerDown: (event) => onPointerDown(context, event),
-        child: Container(
-          constraints: const BoxConstraints(
-            minWidth: 50,
-          ),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Color(color),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(color: Colors.white),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.grab,
+          child: Listener(
+            onPointerDown: (event) => onPointerDown(context, event),
+            child: Container(
+              constraints: const BoxConstraints(
+                minWidth: 50,
               ),
-              _CommandCondition(command: command, ignore: isPalette),
-            ],
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Color(color),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  _CommandCondition(command: command, ignore: isPalette),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        if (isRunningActive) const Icon(TablerIcons.arrow_big_left, color: Colors.red),
+      ],
     );
   }
 }

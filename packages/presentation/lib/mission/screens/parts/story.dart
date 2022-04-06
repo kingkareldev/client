@@ -1,17 +1,16 @@
+import 'package:business_contract/story/entities/mission/learning_mission.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../../../core/widgets/default_screen_container.dart';
-import '../../../model/mission.dart';
-import '../../../model/story.dart';
 import '../../../router/blocs/router/router_bloc.dart';
 
 class StoryScreenPart extends StatefulWidget {
-  final StoryMission mission;
-  final Story story;
+  final LearningMission mission;
+  final String storyUrl;
 
-  const StoryScreenPart({required this.story, required this.mission, Key? key}) : super(key: key);
+  const StoryScreenPart({required this.storyUrl, required this.mission, Key? key}) : super(key: key);
 
   @override
   State<StoryScreenPart> createState() => _StoryScreenPartState();
@@ -54,7 +53,7 @@ class _StoryScreenPartState extends State<StoryScreenPart> {
                 )
               else
                 ElevatedButton(
-                  onPressed: () => routerBloc.add(ToStoryRoute(widget.story.id)),
+                  onPressed: () => routerBloc.add(ToStoryRoute(widget.storyUrl)),
                   child: const Text('back to story'),
                 ),
             ],

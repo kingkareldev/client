@@ -4,9 +4,7 @@ import '../../core/l10n/gen/app_localizations.dart';
 import '../../core/widgets/default_screen_container.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

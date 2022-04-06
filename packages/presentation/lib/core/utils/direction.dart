@@ -1,4 +1,4 @@
-import 'package:business_contract/mission/game/entities/common/direction.dart';
+import 'package:business_contract/story/entities/common/direction.dart';
 
 import '../l10n/gen/app_localizations.dart';
 

@@ -1,20 +1,23 @@
+import 'package:business_contract/story/entities/mission/game_mission.dart';
+import 'package:business_contract/story/entities/mission/learning_mission.dart';
+import 'package:business_contract/story/entities/mission/mission.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 
-import '../../model/mission.dart';
-import '../../model/story.dart';
+import '../../core/l10n/gen/app_localizations.dart';
 import '../../router/blocs/router/router_bloc.dart';
 
 class MissionOverlay extends StatelessWidget {
-  final Story story;
+  final String storyUrl;
   final Mission mission;
 
-  const MissionOverlay({required this.story, required this.mission, Key? key}) : super(key: key);
+  const MissionOverlay({required this.storyUrl, required this.mission, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
+    final AppLocalizations localization = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -24,13 +27,46 @@ class MissionOverlay extends StatelessWidget {
           if (mission is GameMission) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              // TODO: load from user progress
-              children: const [
-                Icon(TablerIcons.crown),
-                Icon(TablerIcons.crown),
-                Icon(TablerIcons.crown),
-                Icon(TablerIcons.crown),
-                Opacity(child: Icon(TablerIcons.crown), opacity: 0.2),
+              children: [
+                // size
+                Column(
+                  children: [
+                    Icon(
+                      TablerIcons.crown,
+                      color: ((mission as GameMission).completed &&
+                              (mission as GameMission).size != 0 &&
+                              (mission as GameMission).size < (mission as GameMission).sizeLimit)
+                          ? Colors.blue
+                          : Colors.grey.shade300,
+                    ),
+                    Text(localization.statsSizeColumn, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  ],
+                ),
+                // completed
+                Column(
+                  children: [
+                    Icon(
+                      TablerIcons.crown,
+                      color: (mission as GameMission).completed ? Colors.blue : Colors.grey.shade300,
+                      size: 60,
+                    ),
+                    Text(localization.statsCompletedColumn, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  ],
+                ),
+                // speed
+                Column(
+                  children: [
+                    Icon(
+                      TablerIcons.crown,
+                      color: ((mission as GameMission).completed &&
+                              (mission as GameMission).speed != 0 &&
+                              (mission as GameMission).speed < (mission as GameMission).speedLimit)
+                          ? Colors.blue
+                          : Colors.grey.shade300,
+                    ),
+                    Text(localization.statsSpeedColumn, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  ],
+                )
               ],
             ),
             const SizedBox(
@@ -50,17 +86,17 @@ class MissionOverlay extends StatelessWidget {
           ),
           if (mission is GameMission)
             ElevatedButton(
-              onPressed: () => routerBloc.add(ToMissionRoute(story.id, mission.id)),
+              onPressed: () => routerBloc.add(ToMissionRoute(storyUrl, mission.url)),
               child: const Text('PLAY'),
             ),
-          if (mission is StoryMission)
+          if (mission is LearningMission && (mission as LearningMission).isStory)
             ElevatedButton(
-              onPressed: () => routerBloc.add(ToMissionRoute(story.id, mission.id)),
+              onPressed: () => routerBloc.add(ToMissionRoute(storyUrl, mission.url)),
               child: const Text('READ'),
             ),
-          if (mission is LearningMission)
+          if (mission is LearningMission && !(mission as LearningMission).isStory)
             ElevatedButton(
-              onPressed: () => routerBloc.add(ToMissionRoute(story.id, mission.id)),
+              onPressed: () => routerBloc.add(ToMissionRoute(storyUrl, mission.url)),
               child: const Text('LEARN'),
             ),
         ],

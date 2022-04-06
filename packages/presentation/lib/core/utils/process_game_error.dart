@@ -1,5 +1,4 @@
-import 'package:business_contract/mission/game/entities/common/condition.dart';
-import 'package:business_contract/mission/game/services/game_service/process_game_error.dart';
+import 'package:business_contract/story/services/game_service/process_game_error.dart';
 
 import '../l10n/gen/app_localizations.dart';
 

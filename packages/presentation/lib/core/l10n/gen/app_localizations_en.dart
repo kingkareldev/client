@@ -14,6 +14,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'King Karel';
 
   @override
+  String get loadingText => 'loading...';
+
+  @override
   String get appHomeDescription => 'King Karel is an educational game with programming puzzles. The game aims at children and other beginners, who will playfully learn the concepts of programming and algorithms.';
 
   @override
@@ -59,6 +62,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameResetButton => 'reset grid';
+
+  @override
+  String get gameStopButton => 'stop game';
 
   @override
   String get gameRunButton => 'run game';
