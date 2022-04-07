@@ -31,9 +31,6 @@ class RouterBloc extends Bloc<RouterEvent, RouterState> {
       _authEmitMiddleware(nextState: SignUpRoute(), emit: emit);
     });
 
-    // Play
-    // TODO: signed in
-
     on<ToStoriesRoute>((event, emit) {
       _authEmitMiddleware(nextState: StoriesRoute(), emit: emit);
     });
@@ -43,9 +40,6 @@ class RouterBloc extends Bloc<RouterEvent, RouterState> {
     on<ToMissionRoute>((event, emit) {
       _authEmitMiddleware(nextState: MissionRoute(event.storyId, event.missionId), emit: emit);
     });
-
-    // Other
-    // TODO: signed in
 
     on<ToStatsRoute>((event, emit) {
       _authEmitMiddleware(nextState: StatsRoute(), emit: emit);

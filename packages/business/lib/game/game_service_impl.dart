@@ -30,8 +30,20 @@ class GameServiceImpl extends GameService {
 
   @override
   Future<Game> parseGame(GameMission gameMission) {
-    final initialCommandsData = RootCommand.fromJson(jsonDecode(gameMission.commandsInitial));
-    final commandsData = RootCommand.fromJson(jsonDecode(gameMission.commands));
+    RootCommand initialCommandsData;
+    RootCommand commandsData;
+
+    try {
+      initialCommandsData = RootCommand.fromJson(jsonDecode(gameMission.commandsInitial));
+      if (gameMission.commands.isEmpty) {
+        commandsData = initialCommandsData;
+      } else {
+        commandsData = RootCommand.fromJson(jsonDecode(gameMission.commands));
+      }
+    } catch (_) {
+      initialCommandsData = RootCommand([]);
+      commandsData = RootCommand([]);
+    }
 
     final initialBoardData = GameBoard.fromJson(jsonDecode(gameMission.boardInitial));
     final resultBoardData = GameBoard.fromJson(jsonDecode(gameMission.boardResult));

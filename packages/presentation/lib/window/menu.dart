@@ -126,24 +126,30 @@ class Menu extends StatelessWidget {
                     if (authState is Unauthenticated) ...[
                       OverlayButton(
                         onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToSignInRoute()),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(TablerIcons.login),
-                            const SizedBox(width: 4),
-                            Text(localization.signInButton.toTitleCase()),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(TablerIcons.login),
+                              const SizedBox(width: 4),
+                              Text(localization.signInButton.toTitleCase()),
+                            ],
+                          ),
                         ),
                       ),
                       OverlayButton(
                         onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToSignUpRoute()),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Icon(TablerIcons.user_plus),
-                            const SizedBox(width: 4),
-                            Text(localization.signUpButton.toTitleCase())
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(TablerIcons.user_plus),
+                              const SizedBox(width: 4),
+                              Text(localization.signUpButton.toTitleCase())
+                            ],
+                          ),
                         ),
                       ),
                     ],

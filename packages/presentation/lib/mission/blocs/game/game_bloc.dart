@@ -82,9 +82,6 @@ class GameBloc extends Bloc<GameEvent, GameState> {
       );
       emit(runGameState);
 
-      // Then, save the game.
-      // _repository.saveGame(); TODO
-
       // Process the game commands.
       Queue<ProcessGameResult> gameQueue = _service.processGame(runGameState.game);
 

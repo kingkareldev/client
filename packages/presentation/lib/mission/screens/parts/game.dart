@@ -257,7 +257,6 @@ class _GameScreenPartState extends State<GameScreenPart> {
   }
 
   void _onSave(RootCommand commands) {
-    print("______ save: " + commands.toString());
     _gameBloc.add(
       SaveGame(
         commands: commands,
