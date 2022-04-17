@@ -104,6 +104,11 @@ class _GameScreenPartState extends State<GameScreenPart> {
                                             ),
                                           ),
                                           MarkdownBody(data: state.game.taskDescription),
+                                          const SizedBox(height: 40),
+                                          Container(
+                                            alignment: Alignment.topCenter,
+                                            child: OutlinedButton(onPressed: _onDescription, child: Text(localization.gameHideDescriptionButton)),
+                                          ),
                                         ],
                                       ),
                                     ),

@@ -8,7 +8,7 @@ class MoveCommand extends SingleCommand implements DirectionCommand {
   @override
   Direction? direction;
 
-  MoveCommand({this.direction}) : super(name: 'move', color: 0xFF0000FF);
+  MoveCommand({this.direction}) : super(name: 'move', color: 0xFF005DC7);
 
   @override
   Command clone() {

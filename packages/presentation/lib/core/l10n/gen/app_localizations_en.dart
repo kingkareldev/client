@@ -145,7 +145,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsUsernameColumn => 'username';
 
   @override
+  String get statsMissionNameColumn => 'mission name';
+
+  @override
   String get statsCompletedColumn => 'completed';
+
+  @override
+  String get statsCompletedTrue => 'yes';
+
+  @override
+  String get statsCompletedFalse => 'no';
 
   @override
   String get statsSizeColumn => 'size';

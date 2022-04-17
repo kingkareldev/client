@@ -3,7 +3,7 @@ import 'package:business_contract/story/entities/commands/command.dart';
 import '../single_command.dart';
 
 class PutMarkCommand extends SingleCommand {
-  PutMarkCommand() : super(name: 'put mark', color: 0xFFFF00FF);
+  PutMarkCommand() : super(name: 'put mark', color: 0xFFFF47A0);
 
   @override
   Command clone() {

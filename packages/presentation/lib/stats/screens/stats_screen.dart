@@ -81,6 +81,13 @@ class _StatsScreenState extends State<StatsScreen> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(bottom: 12),
                                       child:
+                                      Text(localization.statsMissionNameColumn.toTitleCase(), style: headerTextStyle),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child:
                                           Text(localization.statsCompletedColumn.toTitleCase(), style: headerTextStyle),
                                     ),
                                   ),

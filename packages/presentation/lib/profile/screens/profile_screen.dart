@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../authentication/blocs/authentication/authentication_bloc.dart';
 import '../../core/l10n/gen/app_localizations.dart';
 import '../../core/widgets/default_screen_container.dart';
-import '../../router/blocs/router/router_bloc.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -16,7 +15,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    final RouterBloc routerBloc = BlocProvider.of<RouterBloc>(context);
     final AppLocalizations localization = AppLocalizations.of(context)!;
 
     return DefaultScreenContainer(
@@ -40,8 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     BlocBuilder<AuthenticationBloc, AuthenticationState>(
                       builder: (context, state) {
                         if (state is! Authenticated) {
-                          return const Center(
-                            child: Text("no data"),
+                          return Center(
+                            child: Text(localization.noDataLabel),
                           );
                         }
 
@@ -65,11 +63,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 100),
-                OutlinedButton(
-                  onPressed: () => routerBloc.add(ToSettingsRoute()),
-                  child: Text(localization.profileSettingsButton),
-                ),
+                // const SizedBox(height: 100),
+                // OutlinedButton(
+                //   onPressed: () => routerBloc.add(ToSettingsRoute()),
+                //   child: Text(localization.profileSettingsButton),
+                // ),
               ],
             ),
           ),

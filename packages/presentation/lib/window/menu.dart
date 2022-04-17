@@ -69,10 +69,10 @@ class Menu extends StatelessWidget {
                           padding: const EdgeInsets.all(8),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const [
-                              Icon(TablerIcons.crown),
-                              SizedBox(width: 4),
-                              Text('42'),
+                            children: [
+                              const Icon(TablerIcons.crown),
+                              const SizedBox(width: 4),
+                              Text(localization.statsTitle.toTitleCase()),
                             ],
                           ),
                         ),
@@ -96,13 +96,13 @@ class Menu extends StatelessWidget {
                                   child: Text(localization.profileButton.toTitleCase()),
                                 ),
                               ),
-                              InlineHoverButton(
-                                onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToSettingsRoute()),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                  child: Text(localization.settingsButton.toTitleCase()),
-                                ),
-                              ),
+                              // InlineHoverButton(
+                              //   onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToSettingsRoute()),
+                              //   child: Padding(
+                              //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              //     child: Text(localization.settingsButton.toTitleCase()),
+                              //   ),
+                              // ),
                               InlineHoverButton(
                                 onPressed: () => BlocProvider.of<RouterBloc>(context).add(ToInfoRoute()),
                                 child: Padding(

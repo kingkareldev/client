@@ -27,6 +27,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
         storyUrl: event.storyUrl,
         missionUrl: event.missionUrl,
         game: game,
+        showDescription: true,
       ));
     });
 

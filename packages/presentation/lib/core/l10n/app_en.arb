@@ -201,9 +201,21 @@
   "@statsUsernameColumn": {
     "description": "The title of the column for username on stats screen."
   },
+  "statsMissionNameColumn": "mission name",
+  "@statsMissionNameColumn": {
+    "description": "The description of the column for name of mission on stats screen."
+  },
   "statsCompletedColumn": "completed",
   "@statsCompletedColumn": {
     "description": "The title of the column for completed on stats screen."
+  },
+  "statsCompletedTrue": "yes",
+  "@statsCompletedTrue": {
+    "description": "The description of successfully completed mission."
+  },
+  "statsCompletedFalse": "no",
+  "@statsCompletedFalse": {
+    "description": "The description of unsuccessfully completed mission."
   },
   "statsSizeColumn": "size",
   "@statsSizeColumn": {

@@ -8,7 +8,7 @@ import 'single_command.dart';
 abstract class GroupCommand extends Command {
   final List<Command> commands;
 
-  GroupCommand({required String name, required int color, required this.commands}): super(name: name, color: color);
+  GroupCommand({required String name, int color = 0xFFFFDB0F, required this.commands}): super(name: name, color: color);
 
   @override
   String toString() {

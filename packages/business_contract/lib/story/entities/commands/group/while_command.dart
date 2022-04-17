@@ -11,7 +11,7 @@ class WhileCommand extends GroupCommand implements ConditionCommand {
   WhileCommand({
     this.condition,
     required List<Command> commands,
-  }) : super(name: 'while', color: 0xFFAAFFAA, commands: commands);
+  }) : super(name: 'while', commands: commands);
 
   @override
   Command clone() {

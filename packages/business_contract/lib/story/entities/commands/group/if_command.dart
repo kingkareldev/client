@@ -11,7 +11,7 @@ class IfCommand extends GroupCommand implements ConditionCommand {
   IfCommand({
     this.condition,
     required List<Command> commands,
-  }) : super(name: 'if', color: 0xFF00FFAA, commands: commands);
+  }) : super(name: 'if', commands: commands);
 
   @override
   Command clone() {

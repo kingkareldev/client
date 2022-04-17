@@ -29,7 +29,11 @@ class LearningScreenPart extends StatelessWidget {
               const SizedBox(
                 height: 50,
               ),
-              MarkdownBody(data: mission.description),
+              for (var data in mission.data)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: MarkdownBody(data: data),
+                ),
               const SizedBox(
                 height: 50,
               ),

@@ -362,11 +362,29 @@ abstract class AppLocalizations {
   /// **'username'**
   String get statsUsernameColumn;
 
+  /// The description of the column for name of mission on stats screen.
+  ///
+  /// In en, this message translates to:
+  /// **'mission name'**
+  String get statsMissionNameColumn;
+
   /// The title of the column for completed on stats screen.
   ///
   /// In en, this message translates to:
   /// **'completed'**
   String get statsCompletedColumn;
+
+  /// The description of successfully completed mission.
+  ///
+  /// In en, this message translates to:
+  /// **'yes'**
+  String get statsCompletedTrue;
+
+  /// The description of unsuccessfully completed mission.
+  ///
+  /// In en, this message translates to:
+  /// **'no'**
+  String get statsCompletedFalse;
 
   /// The title of the column for size on stats screen.
   ///
