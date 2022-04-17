@@ -175,20 +175,22 @@ class GameServiceImpl extends GameService {
 
     // Have to pass this section, or is returned.
     if (command is WhileCommand) {
-      while (_processCondition(processHolder: processHolder, condition: command.condition)) {
-        processHolder.queue.add(
-          ProcessGameResult(
-            game: processHolder.game,
-            commandIndex: index,
-          ),
-        );
+      if (command.commands.isNotEmpty) {
+        while (_processCondition(processHolder: processHolder, condition: command.condition)) {
+          processHolder.queue.add(
+            ProcessGameResult(
+              game: processHolder.game,
+              commandIndex: index,
+            ),
+          );
 
-        // While loop has to have this check,
-        // so the loop end properly.
-        if (processHolder.shouldFinish) {
-          return;
+          // While loop has to have this check,
+          // so the loop end properly.
+          if (processHolder.shouldFinish) {
+            return;
+          }
+          _processGroupChildren(processHolder: processHolder, command: command, index: index);
         }
-        _processGroupChildren(processHolder: processHolder, command: command, index: index);
       }
 
       processHolder.queue.add(
